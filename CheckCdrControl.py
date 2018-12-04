@@ -32,8 +32,6 @@ class CheckCdrControl:
                     self.createLog(element)
                 continue
 
-
-
     def createLog(self, path):
         pathSplit=path.split("/")
         nameFile=pathSplit[-1]
@@ -82,18 +80,30 @@ class CheckCdrControl:
                     self.errGsm=True
                     self.listLineErrGsm.append("The value in "+"AC"+element+" in sheet \"BTS\" must not be empty"+"\n\n")
 # -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-            if (doc["BTS"]["X"+str(element)].value!=None) or (doc["BTS"]["X"+str(element)].value!="0"):
                 nTrx=doc["BTS"]["X"+str(element)].value
                 startLett="F"
+                cellName=doc["BTS"]["C"+str(element)].value
 
                 for e in range(0,nTrx+1):
 
                     if doc["BTS"]["A"+startLett+str(element)].value==None:
                         self.errGsm=True
                         self.listLineErrGsm.append("The cell "+"\""+"A"+startLett+str(element)+"\" in sheet \"BTS\" "+"can not be empty.\n\n")
+                    else:
+                        if cellName[-2]=="G":
+                            if not(doc["BTS"]["A"+startLett+str(element)].value>=100) or not(doc["BTS"]["A"+startLett+str(element)].value<=124):
+                                self.errGsm=True
+                                self.listLineErrGsm.append("The value in "+"A"+startLett+str(element)+" must be between 100 and 124\n\n")
+
+                        elif cellName[-2]=="D":
+                            if not(doc["BTS"]["A"+startLett+str(element)].value>=687) or not(doc["BTS"]["A"+startLett+str(element)].value<=710):
+                                self.errGsm=True
+                                self.listLineErrGsm.append("The value in "+"A"+startLett+str(element)+" must be between 687 and 710\n\n")
+
+
 
                     startLett=chr(ord(startLett)+1)
+
 # -----------------------------------------------  --------------------------------------------------------------------------------------------------------------------------
 
             if doc["BTS"]["P"+str(element)].value==None:
