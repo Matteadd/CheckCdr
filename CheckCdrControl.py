@@ -14,23 +14,36 @@ class CheckCdrControl:
 
         for element in self.paths:
             if "GSM" in element or"gsm"in element or "2g"in element:
+                self.errGsm=False
                 self.gsm(element)
+                if self.errGsm==True:
+                    self.createLog(element)
                 continue
             elif "WCDMA"in element or "wcdma" in element or "3g" in element or "umts" in element or "UMTS" in element:
+                self.errGsm=False
                 self.wcdma(element)
+                if self.errGsm==True:
+                    self.createLog(element)
                 continue
             elif "LTE" in element or "lte" in element or "4g"in element:
+                self.errGsm=False
                 self.lte(element)
+                if self.errGsm==True:
+                    self.createLog(element)
                 continue
 
-        if self.errGsm==True:
-            if not os.path.exists("./Log Error In Cdr"):
-                    os.makedirs("./Log Error In Cdr")
-            messagebox.showwarning(message="There are errors in the file. Check the file log in the folder \"Log Error In Cdr\"")
-            file=open("./Log Error In Cdr/Log_Error_CDR"+str(datetime.datetime.fromtimestamp(time.time()).strftime('%Y_%m_%d %H_%M'))+".txt","w")
-            file.writelines(self.listLineErrGsm)
-            file.close()
-            pass
+
+
+    def createLog(self, path):
+        pathSplit=path.split("/")
+        nameFile=pathSplit[-1]
+        if not os.path.exists("./Log Error In Cdr"):
+                os.makedirs("./Log Error In Cdr")
+        messagebox.showwarning(message="Check the file log in the folder \"Log Error In Cdr\"")
+        file=open("./Log Error In Cdr/Log_"+nameFile+"_"+str(datetime.datetime.fromtimestamp(time.time()).strftime('%Y_%m_%d %H_%M'))+".txt","w")
+        file.writelines(self.listLineErrGsm)
+        file.close()
+        pass
 
     def gsm(self, path):
         doc= openpyxl.load_workbook(path, data_only=True)
@@ -64,10 +77,10 @@ class CheckCdrControl:
             if (doc["BTS"]["X"+str(element)].value!=None) or (doc["BTS"]["X"+str(element)].value!="0"):
                 if (doc["BTS"]["AB"+str(element)].value==None):
                     self.errGsm=True
-                    self.listLineErrGsm.append("The value in "+"AB"+element+" must not be empty"+"\n\n")
+                    self.listLineErrGsm.append("The value in "+"AB"+element+" in sheet \"BTS\" must not be empty"+"\n\n")
                 if (doc["BTS"]["AC"+str(element)].value==None):
                     self.errGsm=True
-                    self.listLineErrGsm.append("The value in "+"AC"+element+" must not be empty"+"\n\n")
+                    self.listLineErrGsm.append("The value in "+"AC"+element+" in sheet \"BTS\" must not be empty"+"\n\n")
 # -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
             if (doc["BTS"]["X"+str(element)].value!=None) or (doc["BTS"]["X"+str(element)].value!="0"):
@@ -78,52 +91,40 @@ class CheckCdrControl:
 
                     if doc["BTS"]["A"+startLett+str(element)].value==None:
                         self.errGsm=True
-                        self.listLineErrGsm.append("The cell "+"\""+"A"+startLett+str(element)+"\""+"can not be empty.\n\n")
+                        self.listLineErrGsm.append("The cell "+"\""+"A"+startLett+str(element)+"\" in sheet \"BTS\" "+"can not be empty.\n\n")
 
                     startLett=chr(ord(startLett)+1)
 # -----------------------------------------------  --------------------------------------------------------------------------------------------------------------------------
 
             if doc["BTS"]["P"+str(element)].value==None:
                 self.errGsm=True
-                self.listLineErrGsm.append("The cell "+"\""+"P"+str(element)+"\""+"can not be empty.\n\n")
+                self.listLineErrGsm.append("The cell "+"\""+"P"+str(element)+"\" in sheet \"BTS\" "+"can not be empty.\n\n")
             if doc["BTS"]["R"+str(element)].value==None:
                 self.errGsm=True
-                self.listLineErrGsm.append("The cell "+"\""+"R"+str(element)+"\""+"can not be empty.\n\n")
+                self.listLineErrGsm.append("The cell "+"\""+"R"+str(element)+"\" in sheet \"BTS\" "+"can not be empty.\n\n")
 # ------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-        adjg2gValue=doc["ADJ G2G"]["A1"].value
-        adjg2uValue=doc["ADJ G2U"]["A1"].value
+        G2GValue=doc["ADJ G2G"]["A2"].value
+        G2UValue=doc["ADJ G2U"]["A2"].value
 
-        nColAdjg2g=countCol(doc,"ADJ G2G","A",2)
-        nColAdjg2u=countCol(doc,"ADJ G2U","A",2)
+        nColG2G=countCol(doc,"ADJ G2G","A",2)
+        nColG2U=countCol(doc,"ADJ G2U","A",2)
 
-        elemInAdjg2g=elemInCol(doc,"ADJ G2G","A",nColAdjg2g)
-        elemInAdjg2u=elemInCol(doc,"ADJ G2U","A",nColAdjg2u)
+        elemInG2G=elemInCol(doc,"ADJ G2G","A",nColG2G)
+        elemInG2U=elemInCol(doc,"ADJ G2U","A",nColG2U)
 
-        for element in elemInAdjg2g:
-            if element != adjg2gValue:
-                self.errGsm=True
-                errInSelfG2G=True
 
-            if element != adjg2uValue:
-                self.errGsm=True
-                errOutSelfG2G=True
+        cont=2
+        isDifferent=False
+        while doc["ADJ G2U"]["A"+str(cont)].value!=None:
+            if doc["ADJ G2U"]["A"+str(cont)].value!=G2GValue:
+                isDifferent=True
+                break
+            cont+=1
 
-        if errInSelfG2G:
-            self.listLineErrGsm.append("There are inconsistencies in column \"A\" in the sheet \"ADJ G2G\" All values must be the same.\n\n")
-
-        if errOutSelfG2G:
+        if isDifferent:
+            self.errGsm=True
             self.listLineErrGsm.append("The values in the column \"A\" of the sheet \"ADJ G2G\" mustn't be different from the values in the column \"A\" of the sheet \"ADJ G2U\"\n\n")
-
-        for element in elemInAdjg2u:
-            if element != adjg2uValue:
-                self.errGsm=True
-                errInSelfG2U=True
-
-        if errInSelfG2U:
-            self.listLineErrGsm.append("There are inconsistencies in column \"A\" in the sheet \"ADJ G2U\". All values must be the same.\n\n")
-
-
 
         doc.close()
         pass
