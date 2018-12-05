@@ -1,14 +1,22 @@
-import openpyxl
+import tkinter as tk
+from tkinter import messagebox
 
-doc= openpyxl.load_workbook("./CDR_CE_LT068_GSM_MODERNIZATION_ver1.xlsx")
+root= tk.Tk() # create window
 
-nTrx=doc["BTS"]["X5"].value
-startLett="F"
+canvas1 = tk.Canvas(root, width = 800, height = 350)
+canvas1.pack()
 
-for e in range(0,nTrx+1):
 
-    if doc["BTS"]["A"+startLett+"5"].value==None:
-        print("Errore")
+def ExitApplication():
+    MsgBox = tk.messagebox.askquestion ('Exit Application','Are you sure you want to exit the application',icon = 'warning')
+    if MsgBox == 'yes':
+       root.destroy()
     else:
-        print(doc["BTS"]["A"+startLett+"5"].value)
-    startLett=chr(ord(startLett)+1)
+        tk.messagebox.showinfo('Return','You will now return to the application screen')
+
+
+button1 = tk.Button (root, text='Exit Application',command=ExitApplication)
+canvas1.create_window(97, 270, window=button1)
+
+
+root.mainloop()

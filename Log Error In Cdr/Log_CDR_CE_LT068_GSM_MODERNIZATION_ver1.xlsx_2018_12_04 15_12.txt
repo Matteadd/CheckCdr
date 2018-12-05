@@ -1,4 +1,0 @@
-RXSTG-456 is present more than once in column "TG"(column "H"))
-
-The format of 222-88-34562-52404 in "H3" in sheet "BTS", is wrong. It must have inside "34561" and 52405" 
-
