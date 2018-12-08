@@ -1,2 +1,0 @@
-RXSTG-457 is present more than once in column "TG"(column "H"))
-
