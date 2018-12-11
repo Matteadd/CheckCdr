@@ -55,8 +55,9 @@ class CheckCdrControl:
 
     def gsm(self, path):
         doc= openpyxl.load_workbook(path, data_only=True)
-        nTotCol=countCol(doc,"BTS","E",2)
+        nTotCol=countCol(doc,"BTS","C",2)
         elementColE=elemInCol(doc,"BTS","E",nTotCol)
+
         listRecurrence=[]
 
         for element in elementColE:
@@ -80,7 +81,6 @@ class CheckCdrControl:
                 self.errGsm=True
                 self.listLineErrGsm.append("The format of "+str(doc["BTS"]["H"+str(element)].value) + " in \"H"+str(element)+"\" in sheet \"BTS\", is wrong. "+
                                            "It must have inside \"" + str(doc["BTS"]["F"+str(element)].value) + "\" and "+str(doc["BTS"]["G"+str(element)].value)+"\" \n\n")
-
 
             if (doc["BTS"]["X"+str(element)].value!=None) and (doc["BTS"]["X"+str(element)].value!="0"):
 
@@ -140,8 +140,10 @@ class CheckCdrControl:
                 self.errGsm=True
                 self.listLineErrGsm.append("The cell "+"\""+"R"+str(element)+"\" in sheet \"BTS\" "+"can not be empty.\n\n")
 
+
         G2GValue=doc["ADJ G2G"]["A2"].value
         G2UValue=doc["ADJ G2U"]["A2"].value
+
         cont=2
         isDifferent=False
         while doc["ADJ G2U"]["A"+str(cont)].value!=None:
@@ -160,7 +162,6 @@ class CheckCdrControl:
                 isDifferentColBG2G=True
                 break
             cont+=1
-
         if isDifferentColBG2G:
             self.errGsm=True
             self.listLineErrGsm.append("The values in the column \"B\" of the sheet \"ADJ G2G\" mustn't be different from the values in the column \"B\" of the sheet \"BTS\"\n\n")
@@ -172,7 +173,6 @@ class CheckCdrControl:
                 isDifferentColBG2U=True
                 break
             cont+=1
-
         if isDifferentColBG2U:
             self.errGsm=True
             self.listLineErrGsm.append("The values in the column \"B\" of the sheet \"ADJ G2U\" mustn't be different from the values in the column \"B\" of the sheet \"BTS\"\n\n")
