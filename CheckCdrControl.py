@@ -3,6 +3,7 @@ import time
 import datetime
 import os
 from tkinter import messagebox
+import time
 
 class CheckCdrControl:
     def __init__(self, paths):
@@ -18,46 +19,34 @@ class CheckCdrControl:
                 self.gsm(element)
                 if self.errGsm==True:
                     self.createLog(element)
-                    # messagebox.showwarning(message="Check the file log in the folder \"Log Error In Cdr\"")
-                    # error=messagebox.askyesno(title="Warning",message="There are errors in CDR. Do you want open the log folder?")
-                    # if error:
-                    #     os.startfile(".\\Log Error In Cdr")
                 continue
             elif "WCDMA"in element or "wcdma" in element or "3g" in element or "umts" in element or "UMTS" in element:
                 self.errGsm=False
                 self.wcdma(element)
                 if self.errGsm==True:
                     self.createLog(element)
-                    # messagebox.showwarning(message="Check the file log in the folder \"Log Error In Cdr\"")
-                    # error=messagebox.askyesno(title="Warning",message="There are errors in CDR. Do you want open the log folder?")
-                    # if error:
-                    #     os.startfile(".\\Log Error In Cdr")
                 continue
             elif "LTE" in element or "lte" in element or "4g"in element:
                 self.errGsm=False
                 self.lte(element)
                 if self.errGsm==True:
                     self.createLog(element)
-                    # messagebox.showwarning(message="Check the file log in the folder \"Log Error In Cdr\"")
-                    # error=messagebox.askyesno(title="Warning",message="There are errors in CDR. Do you want open the log folder?")
-                    # if error:
-                    #     os.startfile(".\\Log Error In Cdr")
                 continue
         if self.errGsm==True:
 
             error=messagebox.askyesno(title="Warning",message="There are errors in CDR. Do you want open the log folder?")
             if error:
                 os.startfile(".\\Log Error In Cdr")
+        elif  self.errGsm==False:
+            messagebox.showinfo(message="There aren't errors")
+
 
     def createLog(self, path):
         pathSplit=path.split("/")
         nameFile=pathSplit[-1]
         if not os.path.exists("./Log Error In Cdr"):
             os.makedirs("./Log Error In Cdr")
-        if not os.path.exists("./Log Error In Cdr"):
-            os.makedirs("./Log Error In Cdr")
-
-        file=open("./Log Error In Cdr/Log_"+nameFile+"_"+str(datetime.datetime.fromtimestamp(time.time()).strftime('%Y_%m_%d %H_%M'))+".txt","w")
+        file=open("./Log Error In Cdr/Log_"+nameFile+"_"+str(datetime.datetime.fromtimestamp(time.time()).strftime('%m_%d %H_%M'))+".txt","w")
         file.writelines(self.listLineErrGsm)
         file.close()
 
@@ -93,7 +82,7 @@ class CheckCdrControl:
                                            "It must have inside \"" + str(doc["BTS"]["F"+str(element)].value) + "\" and "+str(doc["BTS"]["G"+str(element)].value)+"\" \n\n")
 
 
-            if (doc["BTS"]["X"+str(element)].value!=None) or (doc["BTS"]["X"+str(element)].value!="0"):
+            if (doc["BTS"]["X"+str(element)].value!=None) and (doc["BTS"]["X"+str(element)].value!="0"):
 
                 nTrx=doc["BTS"]["X"+str(element)].value
                 startLett="F"
@@ -139,6 +128,10 @@ class CheckCdrControl:
 
                     startLett=chr(ord(startLett)+1)
 
+            elif (doc["BTS"]["X"+str(element)].value==None) or (doc["BTS"]["X"+str(element)].value=="0"):
+                self.errGsm=True
+                self.listLineErrGsm.append("The Number of TRX of TCH is empty\n\n")
+
             if doc["BTS"]["P"+str(element)].value==None:
                 self.errGsm=True
                 self.listLineErrGsm.append("The cell "+"\""+"P"+str(element)+"\" in sheet \"BTS\" "+"can not be empty.\n\n")
@@ -146,8 +139,6 @@ class CheckCdrControl:
             if doc["BTS"]["R"+str(element)].value==None:
                 self.errGsm=True
                 self.listLineErrGsm.append("The cell "+"\""+"R"+str(element)+"\" in sheet \"BTS\" "+"can not be empty.\n\n")
-
-
 
         G2GValue=doc["ADJ G2G"]["A2"].value
         G2UValue=doc["ADJ G2U"]["A2"].value
