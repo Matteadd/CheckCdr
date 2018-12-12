@@ -123,14 +123,21 @@ class CheckCdrControl:
                             if not(doc["BTS"]["A"+startLett+str(element)].value>=687) or not(doc["BTS"]["A"+startLett+str(element)].value<=710):
                                 self.errGsm=True
                                 self.listLineErrGsm.append("The value in "+"A"+startLett+str(element)+" must be between 687 and 710\n\n")
-
-
-
                     startLett=chr(ord(startLett)+1)
 
             elif (doc["BTS"]["X"+str(element)].value==None) or (doc["BTS"]["X"+str(element)].value=="0"):
                 self.errGsm=True
-                self.listLineErrGsm.append("The Number of TRX of TCH is empty\n\n")
+                self.listLineErrGsm.append("The Number of TRX of TCH in \"X"+str(element)+"\" is empty\n\n")
+
+            if (doc["BTS"]["K"+str(element)].value!=None) and (doc["BTS"]["X"+str(element)].value!="0"):
+                valInK=doc["BTS"]["K"+str(element)].value
+                startLett="F"
+                while startLett!="L":
+                    for cont in range(2,nTotCol+2):
+                        if valInK==doc["BTS"]["A"+startLett+str(cont)].value:
+                            self.errGsm=True
+                            self.listLineErrGsm.append("The frequence in "+"K"+str(element)+" is present also in column "+"A"+startLett+"\n\n")
+                    startLett=chr(ord(startLett)+1)
 
             if doc["BTS"]["P"+str(element)].value==None:
                 self.errGsm=True
@@ -153,12 +160,23 @@ class CheckCdrControl:
             cont+=1
         if isDifferent:
             self.errGsm=True
+            self.listLineErrGsm.append("The values in the column \"A\" of the sheet \"ADJ G2U\" mustn't be different from the values in the column \"A\" of the sheet \"ADJ G2G\"\n\n")
+
+        cont=2
+        isDifferent=False
+        while doc["ADJ G2G"]["A"+str(cont)].value!=None:
+            if doc["ADJ G2G"]["A"+str(cont)].value!=G2UValue:
+                isDifferent=True
+                break
+            cont+=1
+        if isDifferent:
+            self.errGsm=True
             self.listLineErrGsm.append("The values in the column \"A\" of the sheet \"ADJ G2G\" mustn't be different from the values in the column \"A\" of the sheet \"ADJ G2U\"\n\n")
 
         cont=2
         isDifferentColBG2G=False
         while doc["ADJ G2G"]["B"+str(cont)].value!=None:
-            if doc["ADJ G2G"]["A"+str(cont)].value!=doc["BTS"]["B2"]:
+            if doc["ADJ G2G"]["B"+str(cont)].value!=doc["BTS"]["B2"].value:
                 isDifferentColBG2G=True
                 break
             cont+=1
@@ -169,7 +187,7 @@ class CheckCdrControl:
         cont=2
         isDifferentColBG2U=False
         while doc["ADJ G2U"]["B"+str(cont)].value!=None:
-            if doc["ADJ G2U"]["A"+str(cont)].value!=doc["BTS"]["B2"]:
+            if doc["ADJ G2U"]["B"+str(cont)].value!=doc["BTS"]["B2"].value:
                 isDifferentColBG2U=True
                 break
             cont+=1
