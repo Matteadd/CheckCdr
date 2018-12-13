@@ -34,30 +34,29 @@ class Toplevel1:
 
 
     def __init__(self, top=None):
-        '''This class configures and populates the toplevel window.
-           top is the toplevel containing window.'''
-        _bgcolor = '#d9d9d9'  # X11 color: 'gray85'
-        _fgcolor = '#000000'  # X11 color: 'black'
-        _compcolor = '#d9d9d9' # X11 color: 'gray85'
-        _ana1color = '#d9d9d9' # X11 color: 'gray85'
-        _ana2color = '#d9d9d9' # X11 color: 'gray85'
+        # '''This class configures and populates the toplevel window.
+        #    top is the toplevel containing window.'''
+        # _bgcolor = '#d9d9d9'  # X11 color: 'gray85'
+        # _fgcolor = '#000000'  # X11 color: 'black'
+        # _compcolor = '#d9d9d9' # X11 color: 'gray85'
+        # _ana1color = '#d9d9d9' # X11 color: 'gray85'
+        # _ana2color = '#d9d9d9' # X11 color: 'gray85'
         self.style = ttk.Style()
-        if sys.platform == "win32":
-            self.style.theme_use('winnative')
+        self.style.configure('pers.TButton', background="#000000")
+        # if sys.platform == "win32":
+        #     self.style.theme_use('winnative')
         # self.style.configure('.',background=_bgcolor)
         # self.style.configure('.',foreground=_fgcolor)
-        self.style.configure('.',font="TkDefaultFont")
-        self.style.configure('checkButton1',background="#000000")
-        self.style.map('.',background=[('selected', _compcolor), ('active',_ana2color)])
+        # self.style.configure('.',font="TkDefaultFont")
+        # self.style.map('.',background=[('selected', _compcolor), ('active',_ana2color)])
 
         # top.geometry("330x160+700+132")
         top.title("Check CDR Offline")
-        top.configure(background="#d9d9d9")
+        # top.configure(background="#d9d9d9")
         top.resizable(False, False)
 
-        self.checkButton = ttk.Button(top,style="checkButton1",text="CHECK THE FILE",command= lambda:checkCdrControl(self.path),width=30)
-        self.checkButton.grid(row=6, column=0, columnspan=3, sticky="w,e" , ipady=10)
-
+        self.checkButton = ttk.Button(top,style="pers.TButton",text="CHECK THE FILE",command= lambda:checkCdrControl(self.path),width=30)
+        self.checkButton.grid(row=6, column=0, sticky="w,e" , ipady=10)
 
         self.lblSelSite = ttk.Label(top, relief="groove", text="SELECT THE NUMBER\n OF FILE")
         self.lblSelSite.grid(row=0, column=0, ipadx=10, )
