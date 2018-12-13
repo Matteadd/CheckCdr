@@ -1,0 +1,16 @@
+RXSTG-35 is present more than once in column "TG"(column "E"))
+
+The Number of TRX of TCH in "X2" is empty and the frequence from coloumn "AF" to "AK" are filled
+
+The cell "R2" in sheet "BTS" can not be empty.
+
+The value in "AB2" must be between 0 and 63.
+
+The cell "AF3" in sheet "BTS" can not be empty.
+
+The cell "AG3" in sheet "BTS" can not be empty.
+
+The cell "P3" in sheet "BTS" can not be empty.
+
+The values in the column "A" of the sheet "ADJ G2U" mustn't be different from the values in the column "A" of the sheet "ADJ G2G"
+

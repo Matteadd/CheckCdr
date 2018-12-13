@@ -1,6 +1,0 @@
-The frequence in K2is present also in column AF
-
-The values in the column "B" of the sheet "ADJ G2G" mustn't be different from the values in the column "B" of the sheet "BTS"
-
-The values in the column "B" of the sheet "ADJ G2U" mustn't be different from the values in the column "B" of the sheet "BTS"
-

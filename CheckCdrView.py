@@ -30,7 +30,7 @@ def destroy_Toplevel1():
 class Toplevel1:
 
 
-    path=[]
+    path=[None]*5
 
 
     def __init__(self, top=None):
@@ -49,13 +49,13 @@ class Toplevel1:
         self.style.configure('.',font="TkDefaultFont")
         self.style.map('.',background=[('selected', _compcolor), ('active',_ana2color)])
 
-        top.geometry("330x160+700+132")
+        # top.geometry("330x160+700+132")
         top.title("Check CDR Offline")
         top.configure(background="#d9d9d9")
         top.resizable(False, False)
 
-        self.TButton1 = ttk.Button(top,text="Check",command= lambda:checkCdrControl(self.path))
-        self.TButton1.place(x=125, y=126, height=25, width=80)
+        self.TButton1 = ttk.Button(top,text="CHECK THE FILE",command= lambda:checkCdrControl(self.path),width=30)
+        self.TButton1.grid(row=5, column=0, columnspan=3 )
         self.TButton1.configure(takefocus="")
 
         self.lblCdr1 = ttk.Label(top, relief="groove", width=40)
@@ -73,40 +73,56 @@ class Toplevel1:
         self.lblCdr5 = ttk.Label(top, relief="groove", width=40)
         self.lblCdr5.grid(row=4, column=1)
 
-        self.btnCdr1=ttk.Button(top,text="Sfoglia",command = lambda:self.openFilePicker(self.lblCdr1),width=10)
+        self.btnCdr1=ttk.Button(top,text="SELECT...",command = lambda:self.openFilePicker(self.lblCdr1, 0),width=10)
         self.btnCdr1.grid(row=0, column=0)
 
-        self.btnCdr2=ttk.Button(top,text="Sfoglia",command = lambda:self.openFilePicker(self.lblCdr2),width=10)
+        self.btnCdr2=ttk.Button(top,text="SELECT...",command = lambda:self.openFilePicker(self.lblCdr2, 1),width=10)
         self.btnCdr2.grid(row=1, column=0)
 
-        self.btnCdr3=ttk.Button(top,text="Sfoglia",command = lambda:self.openFilePicker(self.lblCdr3),width=10)
+        self.btnCdr3=ttk.Button(top,text="SELECT...",command = lambda:self.openFilePicker(self.lblCdr3, 2),width=10)
         self.btnCdr3.grid(row=2, column=0)
 
-        self.btnCdr4=ttk.Button(top,text="Sfoglia",command = lambda:self.openFilePicker(self.lblCdr4),width=10)
+        self.btnCdr4=ttk.Button(top,text="SELECT...",command = lambda:self.openFilePicker(self.lblCdr4, 3),width=10)
         self.btnCdr4.grid(row=3, column=0)
 
-        self.btnCdr5=ttk.Button(top,text="Sfoglia",command = lambda:self.openFilePicker(self.lblCdr5),width=10)
+        self.btnCdr5=ttk.Button(top,text="SELECT...",command = lambda:self.openFilePicker(self.lblCdr5, 4),width=10)
         self.btnCdr5.grid(row=4, column=0)
 
-    def openFilePicker(self,label):
-        path=filedialog.askopenfilename(initialdir = "/",title = "Select file",filetypes = (("xlsx","*.xlsx"),("all files","*.*")))
-        tempPath=path.split("/")
-        label['text']=tempPath[-1]
-        if path != "":
-            self.path.append(path)
+        self.btnReset1=ttk.Button(top,text="X",command = lambda:self.cleanPath(self.lblCdr1, 0),width=10)
+        self.btnReset1.grid(row=0, column=2)
 
-        # print(tempPath[-1])
+        self.btnReset2=ttk.Button(top,text="X",command = lambda:self.cleanPath(self.lblCdr2, 1),width=10)
+        self.btnReset2.grid(row=1, column=2)
+
+        self.btnReset3=ttk.Button(top,text="X",command = lambda:self.cleanPath(self.lblCdr3, 2),width=10)
+        self.btnReset3.grid(row=2, column=2)
+
+        self.btnReset4=ttk.Button(top,text="X",command = lambda:self.cleanPath(self.lblCdr4, 3),width=10)
+        self.btnReset4.grid(row=3, column=2)
+
+        self.btnReset5=ttk.Button(top,text="X",command = lambda:self.cleanPath(self.lblCdr5, 4),width=10)
+        self.btnReset5.grid(row=4, column=2)
+
+    def openFilePicker(self,label,pos):
+        path=filedialog.askopenfilename(initialdir = "/",title = "Select file",filetypes = (("xlsx","*.xlsx"),("all files","*.*")))
+        if path != "":
+            self.path[pos]=path
+            tempPath=path.split("/")
+            label['text']=tempPath[-1]
+        else:
+            label['text']=""
+            self.path[pos]=None
+
         pass
 
-    def printPath(self):
-        for x in self.path:
-            print(x)
+    def cleanPath(self,label,pos):
+        label['text']=""
+        self.path[pos]=None
 
 def checkCdrControl(path):
+    # print(path)
     Control= CheckCdrControl.CheckCdrControl(path)
     pass
-
-
 
 if __name__ == '__main__':
     vp_start_gui()

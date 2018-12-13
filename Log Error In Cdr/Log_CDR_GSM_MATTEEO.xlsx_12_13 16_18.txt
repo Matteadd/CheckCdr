@@ -1,0 +1,62 @@
+The "RXSTG-35" is present more than once in column "TG" in sheet "BTS"
+
+The "Number of TRX of TCH"(X2)is empty and some field from coloumn "tchFreq-0 (CHGR-1)"(AF) to "tchFreq-5 (CHGR-1)"(AK) are filled
+
+The cell "R2" in sheet "BTS" can not be empty.
+
+The cell "AF3" in sheet "BTS" can not be empty.
+
+The cell "AG3" in sheet "BTS" can not be empty.
+
+The cell "P3" in sheet "BTS" can not be empty.
+
+There are values different in column "BSC name" in sheet "BTS"
+
+The format of "None" in column "CGI"(H2) in sheet "BTS", is wrong. It must have inside "44930"(F2) and "366"(G2)
+
+The "Number of TRX of TCH"(X2)is empty and some field from coloumn "tchFreq-0 (CHGR-1)"(AF) to "tchFreq-5 (CHGR-1)"(AK) are filled
+
+The cell "AF3" in sheet "BTS" can not be empty.
+
+The cell "AG3" in sheet "BTS" can not be empty.
+
+The cell "P3" in sheet "BTS" can not be empty.
+
+The "RXSTG-35" is present more than once in column "TG" in sheet "BTS"
+
+The "Number of TRX of TCH"(X2)is empty and some field from coloumn "tchFreq-0 (CHGR-1)"(AF) to "tchFreq-5 (CHGR-1)"(AK) are filled
+
+The cell "R2" in sheet "BTS" can not be empty.
+
+The cell "AF3" in sheet "BTS" can not be empty.
+
+The cell "AG3" in sheet "BTS" can not be empty.
+
+The cell "P3" in sheet "BTS" can not be empty.
+
+There are values different in column "BSC name" in sheet "BTS"
+
+The format of "None" in column "CGI"(H2) in sheet "BTS", is wrong. It must have inside "44930"(F2) and "366"(G2)
+
+The "Number of TRX of TCH"(X2)is empty and some field from coloumn "tchFreq-0 (CHGR-1)"(AF) to "tchFreq-5 (CHGR-1)"(AK) are filled
+
+The cell "AF3" in sheet "BTS" can not be empty.
+
+The cell "AG3" in sheet "BTS" can not be empty.
+
+The cell "P3" in sheet "BTS" can not be empty.
+
+The "RXSTG-35" is present more than once in column "TG" in sheet "BTS"
+
+The "Number of TRX of TCH"(X2)is empty and some field from coloumn "tchFreq-0 (CHGR-1)"(AF) to "tchFreq-5 (CHGR-1)"(AK) are filled
+
+The cell "R2" in sheet "BTS" can not be empty.
+
+The cell "AF3" in sheet "BTS" can not be empty.
+
+The cell "AG3" in sheet "BTS" can not be empty.
+
+The cell "P3" in sheet "BTS" can not be empty.
+
+There are values different in column "BSC name" in sheet "BTS"
+

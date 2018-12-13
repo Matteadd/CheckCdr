@@ -9,29 +9,32 @@ class CheckCdrControl:
     def __init__(self, paths):
         super(CheckCdrControl, self).__init__()
         self.paths = paths
-        self.listErrGsm={"01":False,"02":False,"03":False,"04":False}
         self.errGsm=False
         self.listLineErrGsm=[]
 
         for element in self.paths:
-            if "GSM" in element or"gsm"in element or "2g"in element:
-                self.errGsm=False
-                self.gsm(element)
-                if self.errGsm==True:
-                    self.createLog(element)
-                continue
-            elif "WCDMA"in element or "wcdma" in element or "3g" in element or "umts" in element or "UMTS" in element:
-                self.errGsm=False
-                self.wcdma(element)
-                if self.errGsm==True:
-                    self.createLog(element)
-                continue
-            elif "LTE" in element or "lte" in element or "4g"in element:
-                self.errGsm=False
-                self.lte(element)
-                if self.errGsm==True:
-                    self.createLog(element)
-                continue
+            if element!= None:
+                if "GSM" in element or"gsm"in element or "2g"in element:
+                    self.errGsm=False
+                    self.gsm(element)
+                    if self.errGsm==True:
+                        self.createLog(element)
+                        continue
+                elif "WCDMA"in element or "wcdma" in element or "3g" in element or "umts" in element or "UMTS" in element:
+                    self.errGsm=False
+                    self.wcdma(element)
+                    if self.errGsm==True:
+                        self.createLog(element)
+                        continue
+                elif "LTE" in element or "lte" in element or "4g"in element:
+                    self.errGsm=False
+                    self.lte(element)
+                    if self.errGsm==True:
+                        self.createLog(element)
+                        continue
+                pass
+
+
         if self.errGsm==True:
 
             error=messagebox.askyesno(title="Warning",message="There are errors in CDR. Do you want open the log folder?")
@@ -60,6 +63,7 @@ class CheckCdrControl:
 
         listRecurrence=[]
 
+        # in questo for controllo se ci sono valori ripetuti in H
         for element in elementColE:
 
             recurrence=0
@@ -73,14 +77,17 @@ class CheckCdrControl:
                 self.errGsm=True
                 if (element in listRecurrence)==False:
                     listRecurrence.append(element)
-                    self.listLineErrGsm.append(element+" is present more than once in column \"TG\"(column \"E\"))\n\n")
+                    self.listLineErrGsm.append("The \""+element+"\" is present more than once in column \"TG\" in sheet \"BTS\"\n\n")
             pass
 
+        # in questo for faccio diversi controlli su alcuni campi
         for element in range(2,nTotCol+2):
+
+            # controllo che se il valoe di h ci devono stare f e g
             if not(str(doc["BTS"]["F"+str(element)].value) in str(doc["BTS"]["H"+str(element)].value)) and not(str(doc["BTS"]["G"+str(element)].value) in str(doc["BTS"]["H"+str(element)].value)):
                 self.errGsm=True
-                self.listLineErrGsm.append("The format of "+str(doc["BTS"]["H"+str(element)].value) + " in \"H"+str(element)+"\" in sheet \"BTS\", is wrong. "+
-                                           "It must have inside \"" + str(doc["BTS"]["F"+str(element)].value) + "\" and "+str(doc["BTS"]["G"+str(element)].value)+"\" \n\n")
+                self.listLineErrGsm.append("The format of \""+str(doc["BTS"]["H"+str(element)].value) + "\" in column \""+str(doc["BTS"]["H"+str(1)].value)+"\"(H"+str(element)+") in sheet \"BTS\", is wrong. "+
+                                           "It must have inside \""+ str(doc["BTS"]["F"+str(element)].value)+ "\""+"(F"+str(element)+") and \""+str(doc["BTS"]["G"+str(element)].value)+"\"(G"+str(element)+")\n\n")
 
             if (doc["BTS"]["X"+str(element)].value!=None) and (doc["BTS"]["X"+str(element)].value!="0"):
 
@@ -125,18 +132,37 @@ class CheckCdrControl:
                                 self.listLineErrGsm.append("The value in "+"A"+startLett+str(element)+" must be between 687 and 710\n\n")
                     startLett=chr(ord(startLett)+1)
 
+            # se x è vuota controllo che da af a ak della stessa colonna siano vuote
             elif (doc["BTS"]["X"+str(element)].value==None) or (doc["BTS"]["X"+str(element)].value=="0"):
-                self.errGsm=True
-                self.listLineErrGsm.append("The Number of TRX of TCH in \"X"+str(element)+"\" is empty\n\n")
 
-            if (doc["BTS"]["K"+str(element)].value!=None) and (doc["BTS"]["X"+str(element)].value!="0"):
+                errTrxEmpty=False
+
+                if doc["BTS"]["AF"+str(element)].value!=None:
+                    errTrxEmpty=True
+                if doc["BTS"]["AG"+str(element)].value!=None:
+                    errTrxEmpty=True
+                if doc["BTS"]["AH"+str(element)].value!=None:
+                    errTrxEmpty=True
+                if doc["BTS"]["AI"+str(element)].value!=None:
+                    errTrxEmpty=True
+                if doc["BTS"]["AJ"+str(element)].value!=None:
+                    errTrxEmpty=True
+                if doc["BTS"]["AK"+str(element)].value!=None:
+                    errTrxEmpty=True
+
+                if errTrxEmpty==True:
+                    self.errGsm=True
+                    self.listLineErrGsm.append("The \"Number of TRX of TCH\"(X"+str(element)+")is empty and some field from coloumn \"tchFreq-0 (CHGR-1)\"(AF) to \"tchFreq-5 (CHGR-1)\"(AK) are filled\n\n")
+
+            #controllo che la frequenza k non sia in nessuna frequenza da af a ak
+            if (doc["BTS"]["K"+str(element)].value!=None) and (doc["BTS"]["K"+str(element)].value!="0"):
                 valInK=doc["BTS"]["K"+str(element)].value
                 startLett="F"
                 while startLett!="L":
                     for cont in range(2,nTotCol+2):
                         if valInK==doc["BTS"]["A"+startLett+str(cont)].value:
                             self.errGsm=True
-                            self.listLineErrGsm.append("The frequence in "+"K"+str(element)+" is present also in column "+"A"+startLett+"\n\n")
+                            self.listLineErrGsm.append("The frequence in \"bcchFreq (CHGR-0)\"(K"+str(element)+") is present also in column \""+doc["BTS"]["A"+startLett+str(1)].value+"\"(A"+startLett+")\n\n")
                     startLett=chr(ord(startLett)+1)
 
             if doc["BTS"]["P"+str(element)].value==None:
@@ -147,53 +173,44 @@ class CheckCdrControl:
                 self.errGsm=True
                 self.listLineErrGsm.append("The cell "+"\""+"R"+str(element)+"\" in sheet \"BTS\" "+"can not be empty.\n\n")
 
+            if doc["BTS"]["AB"+str(element)].value<0 or doc["BTS"]["AB"+str(element)].value>63:
+                self.errGsm=True
+                self.listLineErrGsm.append("The value in \""+"AB"+str(element)+"\" must be between 0 and 63.\n\n")
 
-        G2GValue=doc["ADJ G2G"]["A2"].value
-        G2UValue=doc["ADJ G2U"]["A2"].value
+        colWithDiffInSameGTU=diffInSameCol(doc,"ADJ G2U",["A", "B"],2)
+        if colWithDiffInSameGTU:
+            for element in colWithDiffInSameGTU:
+                nameCol= doc["ADJ G2U"][element+str(1)].value
+                self.errGsm=True
+                self.listLineErrGsm.append("There are values different in column \""+ str(nameCol) + "\" in sheet \"ADJ G2U\"\n\n")
 
-        cont=2
-        isDifferent=False
-        while doc["ADJ G2U"]["A"+str(cont)].value!=None:
-            if doc["ADJ G2U"]["A"+str(cont)].value!=G2GValue:
-                isDifferent=True
-                break
-            cont+=1
-        if isDifferent:
+        colWithDiffInSameG2G=diffInSameCol(doc,"ADJ G2G",["A", "B"],2)
+        if colWithDiffInSameG2G:
+            for element in colWithDiffInSameG2G:
+                nameCol= doc["ADJ G2G"][element+str(1)].value
+                self.errGsm=True
+                self.listLineErrGsm.append("There are values different in column \""+ str(nameCol) + "\" in sheet \"ADJ G2G\"\n\n")
+
+        colWithDiffInSameBTS=diffInSameCol(doc,"BTS",["B"],2)
+        if colWithDiffInSameBTS:
+            for element in colWithDiffInSameBTS:
+                nameCol= doc["BTS"][element+str(1)].value
+                self.errGsm=True
+                self.listLineErrGsm.append("There are values different in column \""+ str(nameCol) + "\" in sheet \"BTS\"\n\n")
+
+        colWithDiffInOtherG2U=diffInOtherCol(doc, "ADJ G2U", "B", 2, "BTS", "B", 2)
+        if colWithDiffInOtherG2U:
+            nameColBTS= doc["BTS"]["B1"].value
+            nameColG2U= doc["ADJ G2U"]["B1"].value
             self.errGsm=True
-            self.listLineErrGsm.append("The values in the column \"A\" of the sheet \"ADJ G2U\" mustn't be different from the values in the column \"A\" of the sheet \"ADJ G2G\"\n\n")
+            self.listLineErrGsm.append("There are values different between column \""+ str(nameColBTS) + "\" in sheet \"BTS\" and column \""+ str(nameColG2U) + "\" in sheet \"ADJ G2U\"\n\n")
 
-        cont=2
-        isDifferent=False
-        while doc["ADJ G2G"]["A"+str(cont)].value!=None:
-            if doc["ADJ G2G"]["A"+str(cont)].value!=G2UValue:
-                isDifferent=True
-                break
-            cont+=1
-        if isDifferent:
+        colWithDiffInOtherG2G=diffInOtherCol(doc, "ADJ G2G", "B", 2, "BTS", "B", 2)
+        if colWithDiffInOtherG2G:
+            nameColBTS= doc["BTS"]["B1"].value
+            nameColG2G= doc["ADJ G2G"]["B1"].value
             self.errGsm=True
-            self.listLineErrGsm.append("The values in the column \"A\" of the sheet \"ADJ G2G\" mustn't be different from the values in the column \"A\" of the sheet \"ADJ G2U\"\n\n")
-
-        cont=2
-        isDifferentColBG2G=False
-        while doc["ADJ G2G"]["B"+str(cont)].value!=None:
-            if doc["ADJ G2G"]["B"+str(cont)].value!=doc["BTS"]["B2"].value:
-                isDifferentColBG2G=True
-                break
-            cont+=1
-        if isDifferentColBG2G:
-            self.errGsm=True
-            self.listLineErrGsm.append("The values in the column \"B\" of the sheet \"ADJ G2G\" mustn't be different from the values in the column \"B\" of the sheet \"BTS\"\n\n")
-
-        cont=2
-        isDifferentColBG2U=False
-        while doc["ADJ G2U"]["B"+str(cont)].value!=None:
-            if doc["ADJ G2U"]["B"+str(cont)].value!=doc["BTS"]["B2"].value:
-                isDifferentColBG2U=True
-                break
-            cont+=1
-        if isDifferentColBG2U:
-            self.errGsm=True
-            self.listLineErrGsm.append("The values in the column \"B\" of the sheet \"ADJ G2U\" mustn't be different from the values in the column \"B\" of the sheet \"BTS\"\n\n")
+            self.listLineErrGsm.append("There are values different between column \""+ str(nameColBTS) + "\" in sheet \"BTS\" and column \""+ str(nameColG2G) + "\" in sheet \"ADJ G2G\"\n\n")
 
         doc.close()
         pass
@@ -238,4 +255,37 @@ def elemInCol(excel,sheet, col, nTotCol):
         elementCol.append(excel[sheet][col+str(element)].value)
         pass
     return elementCol
+    pass
+
+def diffInSameCol(doc, sheet, col, rowStart):
+    err=[]
+
+    for column in col:
+        cont=rowStart
+        diff=False
+        valToCheck=doc[sheet][str(column)+str(cont)].value
+        while doc[sheet][str(column)+str(cont)].value!=None:
+            if doc[sheet][str(column)+str(cont)].value!= valToCheck:
+                diff=True
+            cont+=1
+        if diff:
+            err.append(str(column))
+    return err
+
+    pass
+
+def diffInOtherCol(doc, sheet, col, rowStart, sheetToCheck, colToCheck, rowToCheck):
+    err=[]
+    valToCheck=doc[sheetToCheck][str(colToCheck)+str(rowToCheck)].value
+    cont=rowStart
+    diff=False
+
+    while doc[sheet][str(col)+str(cont)].value!=None:
+        if doc[sheet][str(col)+str(cont)].value!= valToCheck:
+            diff=True
+        cont+=1
+    if diff:
+        return  True
+    else:
+        return  False
     pass
