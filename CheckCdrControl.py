@@ -83,6 +83,8 @@ class CheckCdrControl:
         # in questo for faccio diversi controlli su alcuni campi
         for element in range(2,nTotCol+2):
 
+            print(countRowFill(doc, element, "AF"))
+
             # controllo che se il valoe di h ci devono stare f e g
             if not(str(doc["BTS"]["F"+str(element)].value) in str(doc["BTS"]["H"+str(element)].value)) and not(str(doc["BTS"]["G"+str(element)].value) in str(doc["BTS"]["H"+str(element)].value)):
                 self.errGsm=True
@@ -212,6 +214,8 @@ class CheckCdrControl:
             self.errGsm=True
             self.listLineErrGsm.append("There are values different between column \""+ str(nameColBTS) + "\" in sheet \"BTS\" and column \""+ str(nameColG2G) + "\" in sheet \"ADJ G2G\"\n\n")
 
+
+
         doc.close()
         pass
 
@@ -247,6 +251,18 @@ def countCol(excel,sheet, col,startRow):
         pass
 
     return nTotCol
+    pass
+
+def countRowFill(excel, row, startCol):
+
+    startColList=list(startCol)
+    colFill=0
+
+    while "".join(startColList)!="AL":
+        if excel["BTS"]["".join(startColList)+str(row)].value!=None:
+            colFill+=1
+        startColList[-1]=chr(ord(startColList[-1])+1)
+    return colFill
     pass
 
 def elemInCol(excel,sheet, col, nTotCol):

@@ -1,12 +1,13 @@
-from tkinter import ttk
-import tkinter
+import openpyxl
 
-root = tkinter.Tk()
+startCol="AF"
 
-ttk.Style().configure(style="pers.TLabel", padding=6, relief="flat",
-   background="#000000")
+startColList=list(startCol)
+colFill=0
 
-btn = ttk.Button(text="Sample", style="pers.TLabel"  )
-btn.pack()
+excel= openpyxl.load_workbook("CDR_CE_LT068_GSM_MODERNIZATION_ver1.xlsx", data_only=True)
 
-root.mainloop()
+while "".join(startColList)!="AL":
+    if excel["BTS"]["".join(startColList)+str(2)].value!=None:
+        colFill+=1
+    startColList[-1]=chr(ord(startColList[-1])+1)
