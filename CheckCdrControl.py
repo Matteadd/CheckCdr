@@ -83,11 +83,21 @@ class CheckCdrControl:
 
         # in questo for faccio diversi controlli su alcuni campi
         for element in range(2,nTotCol+2):
+            cellName=doc["BTS"]["C"+str(element)].value
 
+            if cellName[-2]=="G":
+                if doc["BTS"]["K"+str(element)].value<100 or doc["BTS"]["K"+str(element)].value>124:
+                    self.errGsm=True
+                    self.listLineErrGsm.append("The value in \""+doc["BTS"]["K"+str(1)].value+"\"(K"+str(element)+") must be between 100 and 124\n\n")
+
+            elif cellName[-2]=="D":
+                if doc["BTS"]["K"+str(element)].value<687 or doc["BTS"]["K"+str(element)].value>710:
+                    self.errGsm=True
+                    self.listLineErrGsm.append("The value in \""+doc["BTS"]["K"+str(1)].value+"\"(K"+str(element)+") must be between 687 and 710\n\n")
 
 
             # controllo che se il valoe di h ci devono stare f e g
-            if not(str(doc["BTS"]["F"+str(element)].value) in str(doc["BTS"]["H"+str(element)].value)) and not(str(doc["BTS"]["G"+str(element)].value) in str(doc["BTS"]["H"+str(element)].value)):
+            if not(str(doc["BTS"]["F"+str(element)].value) in str(doc["BTS"]["H"+str(element)].value)) or not(str(doc["BTS"]["G"+str(element)].value) in str(doc["BTS"]["H"+str(element)].value)):
                 self.errGsm=True
                 self.listLineErrGsm.append("The format of \""+str(doc["BTS"]["H"+str(element)].value) + "\" in column \""+str(doc["BTS"]["H"+str(1)].value)+"\"(H"+str(element)+") in sheet \"BTS\", is wrong. "+
                                            "It must have inside \""+ str(doc["BTS"]["F"+str(element)].value)+ "\""+"(F"+str(element)+") and \""+str(doc["BTS"]["G"+str(element)].value)+"\"(G"+str(element)+")\n\n")
@@ -99,7 +109,6 @@ class CheckCdrControl:
                 startLett="F"
                 startLett1="C"
                 cellName=doc["BTS"]["C"+str(element)].value
-
                 # se il valore in HSN (CHGR-1) (AB) è vuoto restituisco errore
                 if (doc["BTS"]["AB"+str(element)].value==None):
                     self.errGsm=True
@@ -136,12 +145,12 @@ class CheckCdrControl:
                         self.listLineErrGsm.append("The cell in "+doc["BTS"]["A"+startLett+str(1)].value+"(A"+startLett+str(element)+") in sheet \"BTS\" "+"can not be empty.\n\n")
                     else:
                         if cellName[-2]=="G":
-                            if not(doc["BTS"]["A"+startLett+str(element)].value>=100) or not(doc["BTS"]["A"+startLett+str(element)].value<=124):
+                            if doc["BTS"]["A"+startLett+str(element)].value<100 or doc["BTS"]["A"+startLett+str(element)].value>124:
                                 self.errGsm=True
                                 self.listLineErrGsm.append("The value in \""+doc["BTS"]["A"+startLett+str(1)].value+"\"(A"+startLett+str(element)+") must be between 100 and 124\n\n")
 
                         elif cellName[-2]=="D":
-                            if not(doc["BTS"]["A"+startLett+str(element)].value>=687) or not(doc["BTS"]["A"+startLett+str(element)].value<=710):
+                            if doc["BTS"]["A"+startLett+str(element)].value<687 or doc["BTS"]["A"+startLett+str(element)].value>710:
                                 self.errGsm=True
                                 self.listLineErrGsm.append("The value in \""+doc["BTS"]["A"+startLett+str(1)].value+"\"(A"+startLett+str(element)+") must be between 687 and 710\n\n")
                     startLett=chr(ord(startLett)+1)
