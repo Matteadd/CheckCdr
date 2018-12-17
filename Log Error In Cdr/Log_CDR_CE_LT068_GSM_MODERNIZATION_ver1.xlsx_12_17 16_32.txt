@@ -1,0 +1,18 @@
+The value in "MAIO_0 (CHGR-1)"(AC2) must be between 0 and 3
+
+The value in "tchFreq-0 (CHGR-1)"(AF2) must be between 100 and 124
+
+The value in "HSN (CHGR-1)"(AB2) must be between 0 and 63.
+
+The value in "MAIO_0 (CHGR-1)"(AC3) must be between 0 and 3
+
+The value in "MAIO_1 (CHGR-1)"(AD3) must be between 0 and 3
+
+The value in "MAIO_1 (CHGR-1)"(AD4) must be between 0 and 3
+
+The value in "MAIO_0 (CHGR-1)"(AC5) must be between 0 and 4
+
+The value in "tchFreq-3 (CHGR-1)"(AI5) must be between 687 and 710
+
+The value in "MAIO_1 (CHGR-1)"(AD6) must be between 0 and 4
+

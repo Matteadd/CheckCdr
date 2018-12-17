@@ -51,6 +51,7 @@ class CheckCdrControl:
             os.makedirs("./Log Error In Cdr")
         file=open("./Log Error In Cdr/Log_"+nameFile+"_"+str(datetime.datetime.fromtimestamp(time.time()).strftime('%m_%d %H_%M'))+".txt","w")
         file.writelines(self.listLineErrGsm)
+        self.listLineErrGsm=[]
         file.close()
 
 
@@ -83,7 +84,7 @@ class CheckCdrControl:
         # in questo for faccio diversi controlli su alcuni campi
         for element in range(2,nTotCol+2):
 
-            print(countRowFill(doc, element, "AF"))
+
 
             # controllo che se il valoe di h ci devono stare f e g
             if not(str(doc["BTS"]["F"+str(element)].value) in str(doc["BTS"]["H"+str(element)].value)) and not(str(doc["BTS"]["G"+str(element)].value) in str(doc["BTS"]["H"+str(element)].value)):
@@ -91,6 +92,7 @@ class CheckCdrControl:
                 self.listLineErrGsm.append("The format of \""+str(doc["BTS"]["H"+str(element)].value) + "\" in column \""+str(doc["BTS"]["H"+str(1)].value)+"\"(H"+str(element)+") in sheet \"BTS\", is wrong. "+
                                            "It must have inside \""+ str(doc["BTS"]["F"+str(element)].value)+ "\""+"(F"+str(element)+") and \""+str(doc["BTS"]["G"+str(element)].value)+"\"(G"+str(element)+")\n\n")
 
+            # Diversi controlli sul TRX in caso non fosse vuoto o diverso da 0
             if (doc["BTS"]["X"+str(element)].value!=None) and (doc["BTS"]["X"+str(element)].value!="0"):
 
                 nTrx=doc["BTS"]["X"+str(element)].value
@@ -98,43 +100,53 @@ class CheckCdrControl:
                 startLett1="C"
                 cellName=doc["BTS"]["C"+str(element)].value
 
+                # se il valore in HSN (CHGR-1) (AB) è vuoto restituisco errore
                 if (doc["BTS"]["AB"+str(element)].value==None):
                     self.errGsm=True
-                    self.listLineErrGsm.append("The value in "+"AB"+str(element)+" in sheet \"BTS\" must not be empty"+"\n\n")
+                    self.listLineErrGsm.append("The value in \""+doc["BTS"]["AB"+str(1)].value+"\"(AB"+str(element)+") in sheet \"BTS\" must not be empty"+"\n\n")
 
+                # se la penultima lettera di cellname(C) è G allora anche rSite(D) deve finire in d, stessa cosa per Cellname(c)con G
                 if cellName[-2]=="G":
                     if doc["BTS"]["D"+str(element)].value[-1]!="G":
                         self.errGsm=True
-                        self.listLineErrGsm.append("The value in "+"D"+str(element)+" in sheet \"BTS\" must end with \"G\""+"\n\n")
+                        self.listLineErrGsm.append("The value in \""+doc["BTS"]["D"+str(1)].value+"\"(D"+str(element)+") in sheet \"BTS\" must end with \"G\""+"\n\n")
                 elif cellName[-2]=="D":
                     if doc["BTS"]["D"+str(element)].value[-1]!="D":
                         self.errGsm=True
-                        self.listLineErrGsm.append("The value in "+"D"+str(element)+" in sheet \"BTS\" must end with \"D\""+"\n\n")
+                        self.listLineErrGsm.append("The value in \""+doc["BTS"]["D"+str(1)].value+"\"(D"+str(element)+") in sheet \"BTS\" must end with \"D\""+"\n\n")
 
+                # i maio devono essere compilati almeno per un numero pari ai trx e il loro valore oscilla tra 0 e il numero di colonne tchFreq compilate
                 for e in range(0, nTrx):
                     if doc["BTS"]["A"+startLett1+str(element)].value==None:
                         self.errGsm=True
-                        self.listLineErrGsm.append("The cell "+"\""+"A"+startLett1+str(element)+"\" in sheet \"BTS\" "+"can not be empty.\n\n")
+                        self.listLineErrGsm.append("The cell in \""+doc["BTS"]["A"+startLett1+str(1)].value+"\"(A"+startLett1+str(element)+") in sheet \"BTS\" "+"can not be empty.\n\n")
+                    elif doc["BTS"]["A"+startLett1+str(element)].value!=None:
+                        valMax=countRowFill(doc, element, "AF")
+                        if doc["BTS"]["A"+startLett1+str(element)].value>valMax or doc["BTS"]["A"+startLett1+str(element)].value<0:
+                            self.errGsm=True
+                            self.listLineErrGsm.append("The value in \""+doc["BTS"]["A"+startLett1+str(1)].value+"\"(A"+startLett1+str(element)+") must be between 0 and "+str(valMax)+"\n\n")
                     startLett1=chr(ord(startLett1)+1)
 
+                # i tchFreq devono essere compilati per un numero almeno pari a trx + 1 e
+                # il loro vvalore oscilla tra 687 e 710 in caso cellname sia D altrimenti tra 100 e 124 in caso cell name sia d
                 for e in range(0,nTrx+1):
 
                     if doc["BTS"]["A"+startLett+str(element)].value==None:
                         self.errGsm=True
-                        self.listLineErrGsm.append("The cell "+"\""+"A"+startLett+str(element)+"\" in sheet \"BTS\" "+"can not be empty.\n\n")
+                        self.listLineErrGsm.append("The cell in "+doc["BTS"]["A"+startLett+str(1)].value+"(A"+startLett+str(element)+") in sheet \"BTS\" "+"can not be empty.\n\n")
                     else:
                         if cellName[-2]=="G":
                             if not(doc["BTS"]["A"+startLett+str(element)].value>=100) or not(doc["BTS"]["A"+startLett+str(element)].value<=124):
                                 self.errGsm=True
-                                self.listLineErrGsm.append("The value in "+"A"+startLett+str(element)+" must be between 100 and 124\n\n")
+                                self.listLineErrGsm.append("The value in \""+doc["BTS"]["A"+startLett+str(1)].value+"\"(A"+startLett+str(element)+") must be between 100 and 124\n\n")
 
                         elif cellName[-2]=="D":
                             if not(doc["BTS"]["A"+startLett+str(element)].value>=687) or not(doc["BTS"]["A"+startLett+str(element)].value<=710):
                                 self.errGsm=True
-                                self.listLineErrGsm.append("The value in "+"A"+startLett+str(element)+" must be between 687 and 710\n\n")
+                                self.listLineErrGsm.append("The value in \""+doc["BTS"]["A"+startLett+str(1)].value+"\"(A"+startLett+str(element)+") must be between 687 and 710\n\n")
                     startLett=chr(ord(startLett)+1)
 
-            # se x è vuota controllo che da af a ak della stessa colonna siano vuote
+            # se TRX è vuota controllo che da af a ak della stessa colonna siano vuote
             elif (doc["BTS"]["X"+str(element)].value==None) or (doc["BTS"]["X"+str(element)].value=="0"):
 
                 errTrxEmpty=False
@@ -167,17 +179,20 @@ class CheckCdrControl:
                             self.listLineErrGsm.append("The frequence in \"bcchFreq (CHGR-0)\"(K"+str(element)+") is present also in column \""+doc["BTS"]["A"+startLett+str(1)].value+"\"(A"+startLett+")\n\n")
                     startLett=chr(ord(startLett)+1)
 
+            # Se il campo BSPWRB p sono vuoti restituisco errore
             if doc["BTS"]["P"+str(element)].value==None:
                 self.errGsm=True
-                self.listLineErrGsm.append("The cell "+"\""+"P"+str(element)+"\" in sheet \"BTS\" "+"can not be empty.\n\n")
+                self.listLineErrGsm.append("The cell in \""+doc["BTS"]["P"+str(1)].value+"\"(P"+str(element)+") in sheet \"BTS\" "+"can not be empty.\n\n")
 
+            # Se il campo BSPWR r sono vuoti restituisco errore
             if doc["BTS"]["R"+str(element)].value==None:
                 self.errGsm=True
-                self.listLineErrGsm.append("The cell "+"\""+"R"+str(element)+"\" in sheet \"BTS\" "+"can not be empty.\n\n")
+                self.listLineErrGsm.append("The cell in \""+doc["BTS"]["R"+str(1)].value+"\"(R"+str(element)+") in sheet \"BTS\" "+"can not be empty.\n\n")
 
+            # il campo in ab deve essere compreso tra 0 e 63
             if doc["BTS"]["AB"+str(element)].value<0 or doc["BTS"]["AB"+str(element)].value>63:
                 self.errGsm=True
-                self.listLineErrGsm.append("The value in \""+"AB"+str(element)+"\" must be between 0 and 63.\n\n")
+                self.listLineErrGsm.append("The value in \""+doc["BTS"]["AB"+str(1)].value+"\"(AB"+str(element)+") must be between 0 and 63.\n\n")
 
         colWithDiffInSameGTU=diffInSameCol(doc,"ADJ G2U",["A", "B"],2)
         if colWithDiffInSameGTU:
