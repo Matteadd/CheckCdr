@@ -244,14 +244,31 @@ class CheckCdrControl:
         pass
 
     def wcdma(self, path):
-        doc= openpyxl.load_workbook(path)
-        i=2
-        nTotRow=0
-        while doc["BTS"]["C"+str(i)].value!=None:
-            nTotRow+=1
-            i+=1
-            pass
-        print(nTotRow)
+        doc= openpyxl.load_workbook(path, data_only=True)
+        # sheet RNC Dataset-1
+        # nTotCol=countCol(doc,"","",2)
+        # elementColE=elemInCol(doc,"","",nTotCol)
+        worksheet=doc["RNC Dataset-1"]
+        if worksheet["B3"].value==None:
+            self.errGsm=True
+            self.listLineErrGsm.append("The cell in \"rncId\"(B3) in sheet \"RNC Dataset-1\" can not be empty\n\n")
+        if worksheet["C3"].value==None:
+            self.errGsm=True
+            self.listLineErrGsm.append("The cell in \"NODE NAME\"(C3) in sheet \"RNC Dataset-1\" can not be empty\n\n")
+        if worksheet["E3"].value==None:
+            self.errGsm=True
+            self.listLineErrGsm.append("The cell in \"rbsId\"(E3) in sheet \"RNC Dataset-1\" can not be empty\n\n")
+        worksheet=doc["RNC Dataset-1"]
+
+
+        # nTotCol=countCol(doc,"","",2)
+        # elementColE=elemInCol(doc,"","",nTotCol)
+        #
+        # nTotCol=countCol(doc,"","",2)
+        # elementColE=elemInCol(doc,"","",nTotCol)
+        #
+        # nTotCol=countCol(doc,"","",2)
+        # elementColE=elemInCol(doc,"","",nTotCol)
         pass
 
     def lte(self, path):
