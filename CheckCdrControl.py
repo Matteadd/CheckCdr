@@ -245,9 +245,7 @@ class CheckCdrControl:
 
     def wcdma(self, path):
         doc= openpyxl.load_workbook(path, data_only=True)
-        # sheet RNC Dataset-1
-        # nTotCol=countCol(doc,"","",2)
-        # elementColE=elemInCol(doc,"","",nTotCol)
+        # Controllo nello sheet RNS DAtase-1 che le colonne bce non siano vuote
         worksheet=doc["RNC Dataset-1"]
         if worksheet["B3"].value==None:
             self.errGsm=True
@@ -258,7 +256,11 @@ class CheckCdrControl:
         if worksheet["E3"].value==None:
             self.errGsm=True
             self.listLineErrGsm.append("The cell in \"rbsId\"(E3) in sheet \"RNC Dataset-1\" can not be empty\n\n")
+
         worksheet=doc["RNC Dataset-1"]
+
+
+
 
 
         # nTotCol=countCol(doc,"","",2)
