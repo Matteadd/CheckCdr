@@ -29,8 +29,11 @@ def destroy_Toplevel1():
 
 class Toplevel1:
 
-
-    path=[None]*5
+    nSite=3
+    path=[None]*nSite
+    lblCdr=[]
+    btnCdr=[]
+    btnReset=[]
 
 
     def __init__(self, top=None):
@@ -63,52 +66,60 @@ class Toplevel1:
         # self.lblSelSite = ttk.Label(top, relief="groove", text="SELECT THE NUMBER\n OF FILE")
         # self.lblSelSite.grid(row=0, column=0, ipadx=10, )
 
-        self.lblCdr1 = ttk.Label(top, relief="groove", width=40,style="lblCdr.TLabel" )
-        self.lblCdr1.grid(row=1, column=1 , sticky="w,e", padx=5, pady=5)
+        for n in range(self.nSite):
+            self.lblCdr.append(ttk.Label(top, relief="groove", width=40,style="lblCdr.TLabel", ))
+            self.lblCdr[n].grid(row=n, column=1 , sticky="w,e", padx=5, pady=5)
+            self.btnCdr.append(ttk.Button(top,text="SELECT...", style="sel.TButton" ,command = self.openFilePicker(self.lblCdr[self.btnCdr.index(self.btnCdr[n])], n)))
+            self.btnCdr[n].grid(row=n, column=0, sticky="w,e")
+            self.btnReset.append(ttk.Button(top,text="X", style="sel.TButton" ,command = lambda:self.cleanPath(self.lblCdr[self.btnReset.index(self.btnReset)], n)))
+            self.btnReset[n].grid(row=n, column=2, sticky="w,e")
 
-        self.lblCdr2 = ttk.Label(top, relief="groove", width=40,style="lblCdr.TLabel")
-        self.lblCdr2.grid(row=2, column=1 , sticky="n,s", padx=5, pady=5)
+        print(self.lblCdr)
+        print(self.btnCdr)
+        print(self.btnReset)
+        # self.lblCdr2 = ttk.Label(top, relief="groove", width=40,style="lblCdr.TLabel")
+        # self.lblCdr2.grid(row=2, column=1 , sticky="n,s", padx=5, pady=5)
+        #
+        # self.lblCdr3 = ttk.Label(top, relief="groove", width=40,style="lblCdr.TLabel")
+        # self.lblCdr3.grid(row=3, column=1 , sticky="n,s", padx=5, pady=5)
+        #
+        # self.lblCdr4 = ttk.Label(top, relief="groove", width=40,style="lblCdr.TLabel")
+        # self.lblCdr4.grid(row=4, column=1 , sticky="n,s", padx=5, pady=5)
+        #
+        # self.lblCdr5 = ttk.Label(top, relief="groove", width=40,style="lblCdr.TLabel")
+        # self.lblCdr5.grid(row=5, column=1 , sticky="n,s", padx=5, pady=5)
+        #
+        # self.btnCdr1=ttk.Button(top,text="SELECT...", style="sel.TButton" ,command = lambda:self.openFilePicker(self.lblCdr1, 0))
+        # self.btnCdr1.grid(row=1, column=0, sticky="w,e")
+        #
+        # self.btnCdr2=ttk.Button(top,text="SELECT...", style="sel.TButton" ,command = lambda:self.openFilePicker(self.lblCdr2, 1))
+        # self.btnCdr2.grid(row=2, column=0, sticky="w,e")
+        #
+        # self.btnCdr3=ttk.Button(top,text="SELECT...", style="sel.TButton" ,command = lambda:self.openFilePicker(self.lblCdr3, 2))
+        # self.btnCdr3.grid(row=3, column=0, sticky="w,e")
+        #
+        # self.btnCdr4=ttk.Button(top,text="SELECT...", style="sel.TButton" ,command = lambda:self.openFilePicker(self.lblCdr4, 3))
+        # self.btnCdr4.grid(row=4, column=0, sticky="w,e")
+        #
+        # self.btnCdr5=ttk.Button(top,text="SELECT...", style="sel.TButton" ,command = lambda:self.openFilePicker(self.lblCdr5, 4))
+        # self.btnCdr5.grid(row=5, column=0, sticky="w,e")
+        #
+        # self.btnReset1=ttk.Button(top,text="X", style="sel.TButton" ,command = lambda:self.cleanPath(self.lblCdr1, 0))
+        # self.btnReset1.grid(row=1, column=2, sticky="w,e")
+        #
+        # self.btnReset2=ttk.Button(top,text="X", style="sel.TButton" ,command = lambda:self.cleanPath(self.lblCdr2, 1))
+        # self.btnReset2.grid(row=2, column=2, sticky="w,e")
+        #
+        # self.btnReset3=ttk.Button(top,text="X", style="sel.TButton" ,command = lambda:self.cleanPath(self.lblCdr3, 2))
+        # self.btnReset3.grid(row=3, column=2, sticky="w,e")
+        #
+        # self.btnReset4=ttk.Button(top,text="X", style="sel.TButton" ,command = lambda:self.cleanPath(self.lblCdr4, 3))
+        # self.btnReset4.grid(row=4, column=2, sticky="w,e")
+        #
+        # self.btnReset5=ttk.Button(top,text="X", style="sel.TButton" , command = lambda:self.cleanPath(self.lblCdr5, 4))
+        # self.btnReset5.grid(row=5, column=2, sticky="w,e")
 
-        self.lblCdr3 = ttk.Label(top, relief="groove", width=40,style="lblCdr.TLabel")
-        self.lblCdr3.grid(row=3, column=1 , sticky="n,s", padx=5, pady=5)
-
-        self.lblCdr4 = ttk.Label(top, relief="groove", width=40,style="lblCdr.TLabel")
-        self.lblCdr4.grid(row=4, column=1 , sticky="n,s", padx=5, pady=5)
-
-        self.lblCdr5 = ttk.Label(top, relief="groove", width=40,style="lblCdr.TLabel")
-        self.lblCdr5.grid(row=5, column=1 , sticky="n,s", padx=5, pady=5)
-
-        self.btnCdr1=ttk.Button(top,text="SELECT...", style="sel.TButton" ,command = lambda:self.openFilePicker(self.lblCdr1, 0))
-        self.btnCdr1.grid(row=1, column=0, sticky="w,e")
-
-        self.btnCdr2=ttk.Button(top,text="SELECT...", style="sel.TButton" ,command = lambda:self.openFilePicker(self.lblCdr2, 1))
-        self.btnCdr2.grid(row=2, column=0, sticky="w,e")
-
-        self.btnCdr3=ttk.Button(top,text="SELECT...", style="sel.TButton" ,command = lambda:self.openFilePicker(self.lblCdr3, 2))
-        self.btnCdr3.grid(row=3, column=0, sticky="w,e")
-
-        self.btnCdr4=ttk.Button(top,text="SELECT...", style="sel.TButton" ,command = lambda:self.openFilePicker(self.lblCdr4, 3))
-        self.btnCdr4.grid(row=4, column=0, sticky="w,e")
-
-        self.btnCdr5=ttk.Button(top,text="SELECT...", style="sel.TButton" ,command = lambda:self.openFilePicker(self.lblCdr5, 4))
-        self.btnCdr5.grid(row=5, column=0, sticky="w,e")
-
-        self.btnReset1=ttk.Button(top,text="X", style="sel.TButton" ,command = lambda:self.cleanPath(self.lblCdr1, 0))
-        self.btnReset1.grid(row=1, column=2, sticky="w,e")
-
-        self.btnReset2=ttk.Button(top,text="X", style="sel.TButton" ,command = lambda:self.cleanPath(self.lblCdr2, 1))
-        self.btnReset2.grid(row=2, column=2, sticky="w,e")
-
-        self.btnReset3=ttk.Button(top,text="X", style="sel.TButton" ,command = lambda:self.cleanPath(self.lblCdr3, 2))
-        self.btnReset3.grid(row=3, column=2, sticky="w,e")
-
-        self.btnReset4=ttk.Button(top,text="X", style="sel.TButton" ,command = lambda:self.cleanPath(self.lblCdr4, 3))
-        self.btnReset4.grid(row=4, column=2, sticky="w,e")
-
-        self.btnReset5=ttk.Button(top,text="X", style="sel.TButton" , command = lambda:self.cleanPath(self.lblCdr5, 4))
-        self.btnReset5.grid(row=5, column=2, sticky="w,e")
-
-    def openFilePicker(self,label,pos):
+    def openFilePicker(self,label, pos):
         path=filedialog.askopenfilename(initialdir = "/",title = "Select file",filetypes = (("xlsx","*.xlsx"),("all files","*.*")))
         if path != "":
             self.path[pos]=path
@@ -124,9 +135,9 @@ class Toplevel1:
         label['text']=""
         self.path[pos]=None
 
-def checkCdrControl(path):
-    # print(path)
-    Control= CheckCdrControl.CheckCdrControl(path)
+def checkCdrControl(paths):
+    print(paths)
+    # Control= CheckCdrControl.CheckCdrControl(paths)
     pass
 
 if __name__ == '__main__':
