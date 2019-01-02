@@ -1,6 +1,6 @@
 import sys
-import tkinter.ttk as ttk
 import tkinter as tk
+import tkinter.ttk as ttk
 from tkinter import messagebox as tkMessageBox
 from tkinter import filedialog
 import CheckCdrControl
@@ -37,23 +37,12 @@ class Toplevel1:
 
 
     def __init__(self, top=None):
-        # '''This class configures and populates the toplevel window.
-        #    top is the toplevel containing window.'''
-        # _bgcolor = '#d9d9d9'  # X11 color: 'gray85'
-        # _fgcolor = '#000000'  # X11 color: 'black'
-        # _compcolor = '#d9d9d9' # X11 color: 'gray85'
-        # _ana1color = '#d9d9d9' # X11 color: 'gray85'
-        # _ana2color = '#d9d9d9' # X11 color: 'gray85'
+
         self.style = ttk.Style()
         self.style.configure('check.TButton', font=("Impact", "14") )
         self.style.configure(style="sel.TButton", font=("arial", "10","bold" ))
         self.style.configure(style="lblCdr.TLabel", font=("arial", "10","bold" ))
-        # if sys.platform == "win32":
-        #     self.style.theme_use('winnative')
-        # self.style.configure('.',background=_bgcolor)
-        # self.style.configure('.',foreground=_fgcolor)
-        # self.style.configure('.',font="TkDefaultFont")
-        # self.style.map('.',background=[('selected', _compcolor), ('active',_ana2color)])
+
 
         # top.geometry("330x160+700+132")
         top.title("Check CDR Offline")
@@ -68,15 +57,21 @@ class Toplevel1:
 
         for n in range(self.nSite):
             self.lblCdr.append(ttk.Label(top, relief="groove", width=40,style="lblCdr.TLabel", ))
+
+        self.btnCdr.append(ttk.Button(top, text="SELECT...", style="sel.TButton" ,command = lambda:self.openFilePicker(label=self.lblCdr[0], pos=0)))
+        self.btnReset.append(ttk.Button(top,text="X", style="sel.TButton" ,command = lambda:self.cleanPath(self.lblCdr[0], 0)))
+        self.btnCdr.append(ttk.Button(top, text="SELECT...", style="sel.TButton" ,command = lambda:self.openFilePicker(label=self.lblCdr[1], pos=1)))
+        self.btnReset.append(ttk.Button(top,text="X", style="sel.TButton" ,command = lambda:self.cleanPath(self.lblCdr[1], 1)))
+        self.btnCdr.append(ttk.Button(top, text="SELECT...", style="sel.TButton" ,command = lambda:self.openFilePicker(label=self.lblCdr[2], pos=2)))
+        self.btnReset.append(ttk.Button(top,text="X", style="sel.TButton" ,command = lambda:self.cleanPath(self.lblCdr[2], 2)))
+
+
+
+        for n in range(self.nSite):
             self.lblCdr[n].grid(row=n, column=1 , sticky="w,e", padx=5, pady=5)
-            self.btnCdr.append(ttk.Button(top,text="SELECT...", style="sel.TButton" ,command = self.openFilePicker(self.lblCdr[self.btnCdr.index(self.btnCdr[n])], n)))
             self.btnCdr[n].grid(row=n, column=0, sticky="w,e")
-            self.btnReset.append(ttk.Button(top,text="X", style="sel.TButton" ,command = lambda:self.cleanPath(self.lblCdr[self.btnReset.index(self.btnReset)], n)))
             self.btnReset[n].grid(row=n, column=2, sticky="w,e")
 
-        print(self.lblCdr)
-        print(self.btnCdr)
-        print(self.btnReset)
         # self.lblCdr2 = ttk.Label(top, relief="groove", width=40,style="lblCdr.TLabel")
         # self.lblCdr2.grid(row=2, column=1 , sticky="n,s", padx=5, pady=5)
         #
@@ -136,8 +131,8 @@ class Toplevel1:
         self.path[pos]=None
 
 def checkCdrControl(paths):
-    print(paths)
-    # Control= CheckCdrControl.CheckCdrControl(paths)
+    
+    Control= CheckCdrControl.CheckCdrControl(paths)
     pass
 
 if __name__ == '__main__':

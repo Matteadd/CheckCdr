@@ -1,6 +1,0 @@
-The cell in "rncId"(B3) in sheet "RNC Dataset-1" can not be empty
-
-The cell in "NODE NAME"(C3) in sheet "RNC Dataset-1" can not be empty
-
-The cell in "rbsId"(E3) in sheet "RNC Dataset-1" can not be empty
-

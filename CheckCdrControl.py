@@ -60,7 +60,7 @@ class CheckCdrControl:
     def gsm(self, path):
         doc= openpyxl.load_workbook(path, data_only=True)
         nTotCol=countCol(doc,"BTS","C",2)
-        elementColE=elemInCol(doc,"BTS","E",nTotCol)
+        elementColE=elemInCol(doc,"BTS","E",nTotCol,2)
 
         listRecurrence=[]
 
@@ -203,9 +203,9 @@ class CheckCdrControl:
                 self.errGsm=True
                 self.listLineErrGsm.append("The value in \""+doc["BTS"]["AB"+str(1)].value+"\"(AB"+str(element)+") must be between 0 and 63.\n\n")
 
-        colWithDiffInSameGTU=diffInSameCol(doc,"ADJ G2U",["A", "B"],2)
-        if colWithDiffInSameGTU:
-            for element in colWithDiffInSameGTU:
+        colWithDiffInSameG2U=diffInSameCol(doc,"ADJ G2U",["A", "B"],2)
+        if colWithDiffInSameG2U:
+            for element in colWithDiffInSameG2U:
                 nameCol= doc["ADJ G2U"][element+str(1)].value
                 self.errGsm=True
                 self.listLineErrGsm.append("There are values different in column \""+ str(nameCol) + "\" in sheet \"ADJ G2U\"\n\n")
@@ -245,7 +245,12 @@ class CheckCdrControl:
 
     def wcdma(self, path):
         doc= openpyxl.load_workbook(path, data_only=True)
-        # Controllo nello sheet RNS DAtase-1 che le colonne bce non siano vuote
+        rncDataset=doc["RNC Dataset-1"]["C3"].value
+        rbsDataset=doc["RBS Dataset-1"]["C3"].value
+        uniqueCode=doc["RBS Dataset-1"]["E3"].value
+        nSector=nSector(uniqueCode)
+
+        # Controllo nello sheet RNS DAtaset-1 che le colonne bce non siano vuote
         worksheet=doc["RNC Dataset-1"]
         if worksheet["B3"].value==None:
             self.errGsm=True
@@ -257,8 +262,81 @@ class CheckCdrControl:
             self.errGsm=True
             self.listLineErrGsm.append("The cell in \"rbsId\"(E3) in sheet \"RNC Dataset-1\" can not be empty\n\n")
 
-        worksheet=doc["RNC Dataset-1"]
-        
+        # sheet RN RNC neighbour U2U Dataset-1:
+        # colonna b e e uguali a rncDataset
+        # da finire
+        worksheet=doc["RN RNC neighbour U2U Dataset-1"]
+        nTotRow=countCol(doc,"RN RNC neighbour U2U Dataset-1", "C", 2 )
+        for row in range(2,nTotRow+2):
+            if worksheet[f"B{row}"].value!=rncDataset:
+                temp=doc["RBS Dataset-1"]["C1"].value
+                self.errGsm=True
+                self.listLineErrGsm.append(f"The \"Source RNC\"(B{row}) in sheet RN RNC neighbour U2U Dataset-1 is different from {temp}(C1) in sheet RNC Dataset-1\n\n")
+            if worksheet[f"E{row}"].value!=rncDataset:
+                temp=doc["RBS Dataset-1"]["C1"].value
+                self.errGsm=True
+                self.listLineErrGsm.append(f"The \"Target RNC\"(E{row}) in sheet RN RNC neighbour U2U Dataset-1 is different from {temp}(C1) in sheet RNC Dataset-1\n\n")
+
+        # sheet RN RNC-RBS Dataset-1:
+        # i valori in colonna r devono finire con una lettera tra U-V-Q-R-W-P e un numero che va da 1 a nSector
+        worksheet=doc["RN RNC-RBS Dataset-1"]
+        nTotRow=countCol(doc,"RN RNC-RBS Dataset-1", "R", 12 )
+        elemInColR=elemInCol(doc, "RN RNC-RBS Dataset-1", "R", nTotRow, 12 )
+        cells=dict(cellP=0, cellQ=0, cellR=0, cellU=0, cellV=0, cellW=0)
+        # print(elemInColR)
+        # print(len(elemInColR))
+        for row in elemInColR:
+            if row[-2]=="P":
+                if row[-1]>=1 and row[-1]<=nSector
+                    cells(cellP)+=1
+                else:
+                    print(f"The last character of \"P\" cells, in the column \"Cell\" in sheet \"RN RNC-RBS Dataset-1, must be between 1 and {nSector}\n\n")
+                # print("Esiste p")
+            elif row[-2]=="Q":
+                if row[-1]>=1 and row[-1]<=nSector
+                    cells(cellQ)+=1
+                else:
+                    print(f"The last character of \"Q\" cells, in the column \"Cell\" in sheet \"RN RNC-RBS Dataset-1, must be between 1 and {nSector}\n\n")
+                # print("Esiste Q")
+            elif row[-2]=="R":
+                if row[-1]>=1 and row[-1]<=nSector
+                    cells(cellR)+=1
+                else:
+                    print(f"The last character of \"R\" cells, in the column \"Cell\" in sheet \"RN RNC-RBS Dataset-1, must be between 1 and {nSector}\n\n")
+                # print("Esiste R")
+            elif row[-2]=="U":
+                if row[-1]>=1 and row[-1]<=nSector
+                    cells(cellU)+=1
+                else:
+                    print(f"The last character of \"U\" cells, in the column \"Cell\" in sheet \"RN RNC-RBS Dataset-1, must be between 1 and {nSector}\n\n")
+                # print("Esiste U")
+            elif row[-2]=="V":
+                if row[-1]>=1 and row[-1]<=nSector
+                    cells(cellV)+=1
+                else:
+                    print(f"The last character of \"V\" cells, in the column \"Cell\" in sheet \"RN RNC-RBS Dataset-1, must be between 1 and {nSector}\n\n")
+                # print("Esiste V")
+            elif row[-2]=="W":
+                if row[-1]>=1 and row[-1]<=nSector
+                    cells(cellW)+=1
+                else:
+                    print(f"The last character of \"W\" cells, in the column \"Cell\" in sheet \"RN RNC-RBS Dataset-1, must be between 1 and {nSector}\n\n")
+                # print("Esiste W")
+            else:
+                print("Errore")
+        if cells(cellP)!=0 and cells(cellP)!=nSector:
+            print(f"The \"P\" cells, in the column \"Cell\" in sheet \"RN RNC-RBS Dataset-1\",  are smaller than the number of sectors which is {nSector}\n\n")
+        elif cells(cellQ)!=0 and cells(cellQ)!=nSector:
+            print(f"The \"Q\" cells, in the column \"Cell\" in sheet \"RN RNC-RBS Dataset-1\",  are smaller than the number of sectors which is {nSector}\n\n")
+        elif cells(cellR)!=0 and cells(cellR)!=nSector:
+            print(f"The \"R\" cells, in the column \"Cell\" in sheet \"RN RNC-RBS Dataset-1\",  are smaller than the number of sectors which is {nSector}\n\n")
+        elif cells(cellU)!=0 and cells(cellU)!=nSector:
+            print(f"The \"U\" cells, in the column \"Cell\" in sheet \"RN RNC-RBS Dataset-1\",  are smaller than the number of sectors which is {nSector}\n\n")
+        elif cells(cellV)!=0 and cells(cellV)!=nSector:
+            print(f"The \"V\" cells, in the column \"Cell\" in sheet \"RN RNC-RBS Dataset-1\",  are smaller than the number of sectors which is {nSector}\n\n")
+        elif cells(cellW)!=0 and cells(cellW)!=nSector:
+            print(f"The \"W\" cells, in the column \"Cell\" in sheet \"RN RNC-RBS Dataset-1\",  are smaller than the number of sectors which is {nSector}\n\n")
+
 
 
 
@@ -271,7 +349,7 @@ class CheckCdrControl:
         #
         # nTotCol=countCol(doc,"","",2)
         # elementColE=elemInCol(doc,"","",nTotCol)
-        pass
+        # pass
 
     def lte(self, path):
         doc= openpyxl.load_workbook(path)
@@ -308,9 +386,9 @@ def countRowFill(excel, row, startCol):
     return colFill
     pass
 
-def elemInCol(excel,sheet, col, nTotCol):
+def elemInCol(excel,sheet, col, nTotCol, rowStart):
     elementCol=[]
-    for element in range(2,nTotCol+2):
+    for element in range(rowStart,nTotCol+rowStart):
         elementCol.append(excel[sheet][col+str(element)].value)
         pass
     return elementCol
@@ -348,3 +426,21 @@ def diffInOtherCol(doc, sheet, col, rowStart, sheetToCheck, colToCheck, rowToChe
     else:
         return  False
     pass
+
+def removeSpace(uniqueCode):
+        tempUniqueCode=uniqueCode.strip(" ")
+        nSpace=tempUniqueCode.count(" ")
+        if nSpace!=0:
+            return tempUniqueCode.replace(" ","", nSpace-1)
+        else:
+            return tempUniqueCode
+
+def nSector(uniqueCode):
+    tempUniqueCode=uniqueCode.split("_")[1]
+    # print(tempUniqueCode)
+    if "S" in tempUniqueCode:
+        return tempUniqueCode[0]
+    else:
+        tempUniqueCode=uniqueCode.split("_")[2]
+        if "S" in tempUniqueCode:
+            return tempUniqueCode[0]
