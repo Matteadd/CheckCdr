@@ -1,2 +1,3 @@
-pr={1:"Stupido"}
-print(pr.get(1))
+list=["a"]
+
+print(",".join(list) )

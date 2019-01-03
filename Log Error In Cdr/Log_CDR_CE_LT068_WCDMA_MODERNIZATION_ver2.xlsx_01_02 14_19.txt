@@ -1,2 +1,0 @@
-The "Source RNC"(B12) in sheet RN RNC neighbour U2U Dataset-1 is different from NODE NAME RNC Dataset-1
-

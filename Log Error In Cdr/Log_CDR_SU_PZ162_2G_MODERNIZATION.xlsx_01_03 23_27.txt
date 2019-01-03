@@ -1,0 +1,2 @@
+The format of "222-88-LAC-37026" in column "CGI"(H2) in sheet "BTS", is wrong. It must have inside "44711"(F2) and "37026"(G2)
+
