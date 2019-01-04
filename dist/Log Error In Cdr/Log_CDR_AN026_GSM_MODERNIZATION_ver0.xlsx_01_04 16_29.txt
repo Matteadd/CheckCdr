@@ -1,0 +1,2 @@
+The value in "tchFreq-1 (CHGR-1)"(AG3) must be between 100 and 124
+

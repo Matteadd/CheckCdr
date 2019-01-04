@@ -75,6 +75,12 @@ class CheckCdrControl:
 
         listRecurrence=[]
 
+        cellCreated=[]
+        frqBCCH=[]
+        for element in range(2,nTotCol+2):
+            cellCreated.append(doc["BTS"]["C"+str(element)].value)
+            frqBCCH.append(doc["BTS"]["K"+str(element)].value)
+
         # in questo for controllo se ci sono valori ripetuti in H
         for element in elementColE:
 
@@ -100,7 +106,6 @@ class CheckCdrControl:
                 if doc["BTS"]["K"+str(element)].value<100 or doc["BTS"]["K"+str(element)].value>124:
                     self.errInCDR=True
                     self.listLineerrInCDR.append("The value in \""+doc["BTS"]["K"+str(1)].value+"\"(K"+str(element)+") must be between 100 and 124\n\n")
-
             elif cellName[-2]=="D":
                 if doc["BTS"]["K"+str(element)].value<687 or doc["BTS"]["K"+str(element)].value>710:
                     self.errInCDR=True
@@ -142,13 +147,14 @@ class CheckCdrControl:
                         self.listLineerrInCDR.append("The cell in \""+doc["BTS"]["A"+startLett1+str(1)].value+"\"(A"+startLett1+str(element)+") in sheet \"BTS\" "+"can not be empty.\n\n")
                     elif doc["BTS"]["A"+startLett1+str(element)].value!=None:
                         valMax=countRowFill(doc, element, "AF")
-                        if doc["BTS"]["A"+startLett1+str(element)].value>valMax or doc["BTS"]["A"+startLett1+str(element)].value<0:
+                        if int(doc["BTS"]["A"+startLett1+str(element)].value)>int(valMax) or int(doc["BTS"]["A"+startLett1+str(element)].value)<0:
                             self.errInCDR=True
                             self.listLineerrInCDR.append("The value in \""+doc["BTS"]["A"+startLett1+str(1)].value+"\"(A"+startLett1+str(element)+") must be between 0 and "+str(valMax)+"\n\n")
                     startLett1=chr(ord(startLett1)+1)
 
                 # i tchFreq devono essere compilati per un numero almeno pari a trx + 1 e
                 # il loro vvalore oscilla tra 687 e 710 in caso cellname sia D altrimenti tra 100 e 124 in caso cell name sia d
+                # il loro valore non può essere presente nella lista frqBCCH
                 for e in range(0,nTrx+1):
 
                     if doc["BTS"]["A"+startLett+str(element)].value==None:
@@ -164,8 +170,13 @@ class CheckCdrControl:
                             if doc["BTS"]["A"+startLett+str(element)].value<687 or doc["BTS"]["A"+startLett+str(element)].value>710:
                                 self.errInCDR=True
                                 self.listLineerrInCDR.append("The value in \""+doc["BTS"]["A"+startLett+str(1)].value+"\"(A"+startLett+str(element)+") must be between 687 and 710\n\n")
-                    startLett=chr(ord(startLett)+1)
+                        # if doc["BTS"]["A"+startLett+str(element)].value in frqBCCH:
+                        #     freq=doc["BTS"]["A"+startLett+str(element)].value
+                        #     nameColoumn=doc["BTS"]["A"+startLett+str(1)].value
+                        #     self.errInCDR=True
+                        #     self.listLineerrInCDR.append(f"The value {freq} of {nameColoumn}(A{startLett+str(1)}) is also present in \"bcchFreq (CHGR-0)\" in sheet \"BTS\".\n\n")
 
+                    startLett=chr(ord(startLett)+1)
             # se TRX è vuota controllo che da af a ak della stessa colonna siano vuote
             elif (doc["BTS"]["X"+str(element)].value==None) or (doc["BTS"]["X"+str(element)].value=="0"):
 
@@ -210,9 +221,10 @@ class CheckCdrControl:
                 self.listLineerrInCDR.append("The cell in \""+doc["BTS"]["R"+str(1)].value+"\"(R"+str(element)+") in sheet \"BTS\" "+"can not be empty.\n\n")
 
             # il campo in ab deve essere compreso tra 0 e 63
-            if doc["BTS"]["AB"+str(element)].value<0 or doc["BTS"]["AB"+str(element)].value>63:
+            if int(doc["BTS"]["AB"+str(element)].value)<0 or int(doc["BTS"]["AB"+str(element)].value)>63:
                 self.errInCDR=True
                 self.listLineerrInCDR.append("The value in \""+doc["BTS"]["AB"+str(1)].value+"\"(AB"+str(element)+") must be between 0 and 63.\n\n")
+
 
         colWithDiffInSameG2U=equalValuesInSameCol(doc,"ADJ G2U",["A", "B"],2)
         if colWithDiffInSameG2U:
@@ -250,6 +262,21 @@ class CheckCdrControl:
             self.listLineerrInCDR.append("There are values different between column \""+ str(nameColBTS) + "\" in sheet \"BTS\" and column \""+ str(nameColG2G) + "\" in sheet \"ADJ G2G\"\n\n")
 
 
+        worksheet=doc["ADJ G2G"]
+        nTotRow=countCol(doc,"ADJ G2G", "B", 2 )
+        for row in range(2, nTotRow+2):
+            if not(worksheet[f"C{row}"].value in cellCreated):
+                cell=worksheet[f"C{row}"].value
+                nameCol=worksheet[f"C{1}"].value
+                self.errInCDR=True
+                self.listLineerrInCDR.append(f"The  cell {cell}, in {nameCol}(C{row}) in \"ADJ G2G\", is not created in column \"cell-name\"(C), in sheet \"BTS\".\n\n")
+            if not(worksheet[f"E{row}"].value in cellCreated):
+                cell=worksheet[f"E{row}"].value
+                nameCol=worksheet[f"E{1}"].value
+                self.errInCDR=True
+                self.listLineerrInCDR.append(f"The  cell {cell}, in {nameCol}(E{row}) in \"ADJ G2G\", is not created in column \"cell-name\"(C), in sheet \"BTS\".\n\n")
+
+
 
         doc.close()
         pass
@@ -260,6 +287,19 @@ class CheckCdrControl:
         rbsDataset=doc["RBS Dataset-1"]["C3"].value
         uniqueCode=doc["RBS Dataset-1"]["E3"].value
         nSector=nSectors(uniqueCode)
+
+        cellCreated=[]
+        lettercellCreated=[]
+        worksheet=doc["RN RNC-RBS Dataset-1"]
+        nTotRow=countCol(doc,"RN RNC-RBS Dataset-1", "R", 12 )
+        for row in range(12, nTotRow+12):
+            valColR=worksheet[f"R{row}"].value
+
+            if not(valColR in cellCreated):
+                cellCreated.append(str(valColR))
+            letterCell=valColR[-2]
+            if not(letterCell in lettercellCreated):
+                lettercellCreated.append(str(letterCell))
 
         # Controllo nello sheet RNS DAtaset-1 che le colonne bce non siano vuote
         worksheet=doc["RNC Dataset-1"]
@@ -292,7 +332,8 @@ class CheckCdrControl:
         # i valori in colonna r devono finire con una lettera tra U-V-Q-R-W-P e un numero che va da 1 a nSector
         # i valori della colonna q non devono ripetersi
         # i valori della colonna s non devono ripetersi
-        # i valore nella colonna r non deve essere presente nella colonna an ma devono essere presenti tutte le altre celle dello stesso settore
+        # i valore nella colonna r non deve essere presente nella colonna an ma devono essere presenti tutte le altre celle dello stesso settore solo se sono state create ? da chiedere se solo per w va fatto il controllo
+        # da finire
         worksheet=doc["RN RNC-RBS Dataset-1"]
         nTotRow=countCol(doc,"RN RNC-RBS Dataset-1", "R", 12 )
         elemInColR=elemInCol(doc, "RN RNC-RBS Dataset-1", "R", nTotRow, 12 )
@@ -372,33 +413,155 @@ class CheckCdrControl:
             for occ in occurenceInS:
                 self.listLineerrInCDR.append(f"The value \"{occ}\" in coloumn \"localCellId\" in sheet \"RN RNC-RBS Dataset-1\", are repeated more than once.\n\n")
 
-
         for row in range(12, nTotRow+12):
             valColR=worksheet[f"R{row}"].value
             valColAN=worksheet[f"AN{row}"].value
+            splitValColAN=valColAN.split(",")
 
             if valColR in valColAN:
                 self.errInCDR=True
-                self.listLineerrInCDR.append(f"The cell \"{valColR}\"(R{row}), in sheet \"RN RNC-RBS Dataset-1\", is present in \"utranCellRef\"(AN{row}). \n\n")
+                self.listLineerrInCDR.append(f"The cell \"{valColR}\"(R{row}), in sheet \"RN RNC-RBS Dataset-1\", is present in \"utranCellRef\"(AN{row}).\n\n")
 
+            sectorNumber=valColR[-1]
+            for cell in splitValColAN:
+                if cell[-1]!=sectorNumber:
+                    self.errInCDR=True
+                    self.listLineerrInCDR.append(f"There are cells of the different sector in \"utranCellRef\"(AN{row}).\n\n")
 
+                if not(cell[-2] in lettercellCreated):
+                    self.errInCDR=True
+                    self.listLineerrInCDR.append(f"In the \"utranCellRef\"(AN{row}) the cell {cell} is not created in column \"CELL\"(R), in sheet \"RN RNC-RBS Dataset-1\".\n\n")
 
+        #sheet EutranFreqRelation-1
+        # nella colonna b devono essere presenti solo le celle create in Cell(R) in rn rnc dataset-1
+        worksheet=doc["EutranFreqRelation-1"]
+        nTotRow=countCol(doc,"EutranFreqRelation-1", "B", 2 )
+        for row in range(2, nTotRow+2):
+            if not(worksheet[f"B{row}"].value in cellCreated):
+                cell=worksheet[f"B{row}"].value
+                self.errInCDR=True
+                self.listLineerrInCDR.append(f"The cell {cell}, in \"UTRANCELL\"(B{row}) in sheet \"EutranFreqRelation-1\", is not created in column \"CELL\"(R), in sheet \"RN RNC-RBS Dataset-1\".\n\n")
 
-
-
+        # sheet RN RNC neighbour U2U Dataset-1:
+        # le colonne b ed e hanno lo stesso valore della colonna c in RNc dataset-1
+        
 
 
 
     def lte(self, path):
-        doc= openpyxl.load_workbook(path)
-        i=2
-        nTotRow=0
-        while doc["BTS"]["C"+str(i)].value!=None:
-            nTotRow+=1
-            i+=1
-            pass
-        print(nTotRow)
-        pass
+        doc= openpyxl.load_workbook(path, data_only=True)
+        cellCreated=[]
+
+        worksheet=doc["EutranCell"]
+        nTotRow=countCol(doc,"EutranCell", "B", 12 )
+        for row in range(12, nTotRow+12):
+            cellCreated.append(worksheet[f"B{row}"].value)
+
+        # sheet EutranCell:
+        # colonna A le celle devono finire con una lettera tra a, b, c, f e un numero
+        # LA colonna i non deve avere valori ripetuti
+        # i valoei di j possono avere valore compreso tra 0e 167
+        # i valori di k possono variare tra 0 e 2
+        # Se nella colonna j ci sono valori uguali, nelle rispettive celle della colonna k non devono esserci valori uguali
+        worksheet=doc["EutranCell"]
+        nTotRow=countCol(doc,"EutranCell", "B", 12 )
+        letterAllowedForCell=["A", "B", "C", "F"]
+        for row in range(12, nTotRow+12):
+            if worksheet[f"B{row}"].value[-2] in letterAllowedForCell:
+                if not(int(worksheet[f"B{row}"].value[-1])):
+                    cell=worksheet[f"B{row}"].value
+                    nameCol=worksheet[f"B11"].value
+                    self.errInCDR=True
+                    self.listLineerrInCDR.append(f"The last character of cell {cell}, in \"{nameCol}\" in sheet \"EutranCell\", must be a number\n\n")
+            else:
+                cell=worksheet[f"B{row}"].value
+                nameCol=worksheet[f"B11"].value
+                self.errInCDR=True
+                self.listLineerrInCDR.append(f"The cell {cell}, in \"{nameCol}\"(B{row}) in sheet \"EutranCell\", must be only \"A\", \"B\", \"C\", \"F\"\n\n")
+
+            if int(worksheet[f"J{row}"].value)<0 or int(worksheet[f"J{row}"].value)>167:
+                cell=worksheet[f"J{row}"].value
+                nameCol=worksheet[f"J{11}"].value
+                self.errInCDR=True
+                self.listLineerrInCDR.append(f"The value {cell}, in \"{nameCol}\"(J{row}) in sheet \"EutranCell\", must be between 0 and 167 \n\n")
+
+            if int(worksheet[f"K{row}"].value)<0 or int(worksheet[f"K{row}"].value)>2:
+                cell=worksheet[f"K{row}"].value
+                nameCol=worksheet[f"J{11}"].value
+                self.errInCDR=True
+                self.listLineerrInCDR.append(f"The value {cell}, in \"{nameCol}\"(K{row}) in sheet \"EutranCell\", must be between 0 and 2 \n\n")
+
+        elemInColI=elemInCol(doc, "EutranCell", "I", nTotRow, 12)
+        occurenceInI=diffValuesInSameCol(elemInColI)
+        if len(occurenceInI)>0:
+            self.errInCDR=True
+            for occ in occurenceInI:
+                self.listLineerrInCDR.append(f"The value \"{occ}\" in coloumn \"CellId\" in sheet \"EutranCell\", are repeated more than once.\n\n")
+
+        elemInColJ=elemInCol(doc, "EutranCell", "J", nTotRow, 12)
+        occurence=[]
+        for row in range(12, nTotRow+12):
+            firstOcc=worksheet[f"J{row}"].value
+            rowFirstOcc=row
+            for row in range(12, nTotRow+12):
+                if worksheet[f"J{row}"].value==firstOcc and row!=rowFirstOcc:
+                    valcolKFirsOcc=worksheet[f"K{rowFirstOcc}"].value
+                    valcolKrow=worksheet[f"K{row}"].value
+                    if valcolKFirsOcc==valcolKrow:
+                        # cell=worksheet[f"{row}"].value
+                        nameCol=worksheet[f"K{11}"].value
+                        self.errInCDR=True
+                        self.listLineerrInCDR.append(f"The value \"{valcolKFirsOcc}\"(K{rowFirstOcc}) and \"{valcolKrow}\"(K{row}), in \"{nameCol}\" in sheet \"EutranCell, can not be the same.\"\n\n")
+
+        # sheet EUtranFreqRelation:
+        # nella colonna b devono esserci solo i valori di cellCreated
+        worksheet=doc["EUtranFreqRelation"]
+        nTotRow=countCol(doc,"EUtranFreqRelation", "B", 12 )
+        for row in range(12, nTotRow+12):
+            if not(worksheet[f"B{row}"].value in cellCreated):
+                cell=worksheet[f"B{row}"].value
+                nameCol=worksheet[f"B{11}"].value
+                self.errInCDR=True
+                self.listLineerrInCDR.append(f"The cell \"{cell}\", in \"{nameCol}\"(B{row}) in sheet \"EUtranFreqRelation\", is not created in \"Cell Name\" in sheet \"EutranCell\".\n\n")
+
+        # sheet UtranFreqRelation:
+        # nella colonna b devono esserci solo i valori di cellCreated
+        worksheet=doc["UtranFreqRelation"]
+        nTotRow=countCol(doc,"UtranFreqRelation", "B", 12 )
+        for row in range(12, nTotRow+12):
+            if not(worksheet[f"B{row}"].value in cellCreated):
+                cell=worksheet[f"B{row}"].value
+                nameCol=worksheet[f"B{11}"].value
+                self.errInCDR=True
+                self.listLineerrInCDR.append(f"The cell \"{cell}\", in \"{nameCol}\"(B{row}) in sheet \"UtranFreqRelation\", is not created in \"Cell Name\" in sheet \"EutranCell\".\n\n")
+
+        # sheet EUtranCellRelation:
+        # nella colonna b devono esserci solo i valori di cellCreated
+        # nella colonna c devono esserci solo i valori di cellCreated
+        # lo split della colonna e deve contenere solo i valori di cellCreated
+        worksheet=doc["EUtranCellRelation"]
+        nTotRow=countCol(doc,"EUtranCellRelation", "B", 12 )
+        for row in range(12, nTotRow+12):
+            if not(worksheet[f"B{row}"].value in cellCreated):
+                cell=worksheet[f"B{row}"].value
+                nameCol=worksheet[f"B{11}"].value
+                self.errInCDR=True
+                self.listLineerrInCDR.append(f"The cell \"{cell}\", in \"{nameCol}\"(B{row}) in sheet \"EUtranCellRelation\", is not created in \"Cell Name\" in sheet \"EutranCell\".\n\n")
+
+            if not(worksheet[f"C{row}"].value in cellCreated):
+                cell=worksheet[f"C{row}"].value
+                nameCol=worksheet[f"C{11}"].value
+                self.errInCDR=True
+                self.listLineerrInCDR.append(f"The cell \"{cell}\", in \"{nameCol}\"(B{row}) in sheet \"EUtranCellRelation\", is not created in \"Cell Name\" in sheet \"EutranCell\".\n\n")
+
+            splitValColE=worksheet[f"E{row}"].value.split("-")
+            for string in splitValColE:
+                if not(string in cellCreated):
+                    cell=worksheet[f"E{row}"].value
+                    nameCol=worksheet[f"E{11}"].value
+                    self.errInCDR=True
+                    self.listLineerrInCDR.append(f"In the {nameCol}(E{row}) in sheet \"EutranCell\", can exist only cells created in \"Cell Name\" in sheet \"EutranCell\".\n\n")
+
 
 def countCol(excel,sheet, col,startRow):
 
@@ -423,7 +586,7 @@ def countRowFill(excel, row, startCol):
         startColList[-1]=chr(ord(startColList[-1])+1)
     return colFill
     pass
-
+# ritorna una lisa di tutti gli elementi della colonna, prenedno il documento, losheet, la colonna, il numero totale di colonne e la colonna da cui iniziare
 def elemInCol(excel,sheet, col, nTotCol, rowStart):
     elementCol=[]
     for element in range(rowStart,nTotCol+rowStart):
@@ -431,7 +594,7 @@ def elemInCol(excel,sheet, col, nTotCol, rowStart):
         pass
     return elementCol
     pass
-
+# cerca nella colonna se i valori sono diversi. Se sonon diversi torna errore
 def equalValuesInSameCol(doc, sheet, col, rowStart):
     err=[]
 
@@ -482,7 +645,7 @@ def nSectors(uniqueCode):
         tempUniqueCode=uniqueCode.split("_")[2]
         if "S" in tempUniqueCode:
             return tempUniqueCode[0]
-
+# cerca nella colonna se i valori sono uguali. Se sonon uguali torna errore e quali valori si ripetono
 def diffValuesInSameCol(colToAnalize):
     repeatedValues=[]
     occurence=False

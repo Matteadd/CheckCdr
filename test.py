@@ -1,3 +1,3 @@
-list=["a"]
+list=['Q', 'R', 'U', 'V', 'W']
 
-print(",".join(list) )
+print("V" in list)

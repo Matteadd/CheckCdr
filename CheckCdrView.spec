@@ -4,7 +4,7 @@ block_cipher = None
 
 
 a = Analysis(['CheckCdrView.py'],
-             pathex=['C:\\Users\\User\\Desktop\\CheckCDR'],
+             pathex=['C:\\Users\\Matteo\\github\\CheckCdr'],
              binaries=[],
              datas=[],
              hiddenimports=[],
