@@ -162,12 +162,12 @@ class CheckCdrControl:
                         self.listLineerrInCDR.append("The cell in "+doc["BTS"]["A"+startLett+str(1)].value+"(A"+startLett+str(element)+") in sheet \"BTS\" "+"can not be empty.\n\n")
                     else:
                         if cellName[-2]=="G":
-                            if doc["BTS"]["A"+startLett+str(element)].value<100 or doc["BTS"]["A"+startLett+str(element)].value>124:
+                            if int(doc["BTS"]["A"+startLett+str(element)].value)<100 or int(doc["BTS"]["A"+startLett+str(element)].value)>124:
                                 self.errInCDR=True
                                 self.listLineerrInCDR.append("The value in \""+doc["BTS"]["A"+startLett+str(1)].value+"\"(A"+startLett+str(element)+") must be between 100 and 124\n\n")
 
                         elif cellName[-2]=="D":
-                            if doc["BTS"]["A"+startLett+str(element)].value<687 or doc["BTS"]["A"+startLett+str(element)].value>710:
+                            if int(doc["BTS"]["A"+startLett+str(element)].value)<687 or int(doc["BTS"]["A"+startLett+str(element)].value)>710:
                                 self.errInCDR=True
                                 self.listLineerrInCDR.append("The value in \""+doc["BTS"]["A"+startLett+str(1)].value+"\"(A"+startLett+str(element)+") must be between 687 and 710\n\n")
                         # if doc["BTS"]["A"+startLett+str(element)].value in frqBCCH:
@@ -221,6 +221,7 @@ class CheckCdrControl:
                 self.listLineerrInCDR.append("The cell in \""+doc["BTS"]["R"+str(1)].value+"\"(R"+str(element)+") in sheet \"BTS\" "+"can not be empty.\n\n")
 
             # il campo in ab deve essere compreso tra 0 e 63
+            print(doc["BTS"]["AB"+str(element)].value)
             if int(doc["BTS"]["AB"+str(element)].value)<0 or int(doc["BTS"]["AB"+str(element)].value)>63:
                 self.errInCDR=True
                 self.listLineerrInCDR.append("The value in \""+doc["BTS"]["AB"+str(1)].value+"\"(AB"+str(element)+") must be between 0 and 63.\n\n")
@@ -444,7 +445,7 @@ class CheckCdrControl:
 
         # sheet RN RNC neighbour U2U Dataset-1:
         # le colonne b ed e hanno lo stesso valore della colonna c in RNc dataset-1
-        
+
 
 
 
