@@ -129,6 +129,11 @@ class CheckCdrControl:
                 if (doc["BTS"]["AB"+str(element)].value==None):
                     self.errInCDR=True
                     self.listLineerrInCDR.append("The value in \""+doc["BTS"]["AB"+str(1)].value+"\"(AB"+str(element)+") in sheet \"BTS\" must not be empty"+"\n\n")
+                else:
+                    # print(doc["BTS"]["AB"+str(element)].value)
+                    if int(doc["BTS"]["AB"+str(element)].value)<0 or int(doc["BTS"]["AB"+str(element)].value)>63:
+                        self.errInCDR=True
+                        self.listLineerrInCDR.append("The value in \""+doc["BTS"]["AB"+str(1)].value+"\"(AB"+str(element)+") must be between 0 and 63.\n\n")
 
                 # se la penultima lettera di cellname(C) è G allora anche rSite(D) deve finire in d, stessa cosa per Cellname(c)con G
                 if cellName[-2]=="G":
@@ -221,10 +226,7 @@ class CheckCdrControl:
                 self.listLineerrInCDR.append("The cell in \""+doc["BTS"]["R"+str(1)].value+"\"(R"+str(element)+") in sheet \"BTS\" "+"can not be empty.\n\n")
 
             # il campo in ab deve essere compreso tra 0 e 63
-            print(doc["BTS"]["AB"+str(element)].value)
-            if int(doc["BTS"]["AB"+str(element)].value)<0 or int(doc["BTS"]["AB"+str(element)].value)>63:
-                self.errInCDR=True
-                self.listLineerrInCDR.append("The value in \""+doc["BTS"]["AB"+str(1)].value+"\"(AB"+str(element)+") must be between 0 and 63.\n\n")
+
 
 
         colWithDiffInSameG2U=equalValuesInSameCol(doc,"ADJ G2U",["A", "B"],2)
