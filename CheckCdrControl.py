@@ -31,7 +31,6 @@ class CheckCdrControl:
                         self.errInCDR=None
                         self.exc_type, self.exc_obj, self.exc_tb = sys.exc_info()
                         self.fileWithGenericError=element.split("/")[-1]
-                        print(element.split("/")[-1], self.fileWithGenericError)
                         break
                     if self.errInCDR==True:
                         self.siteWithError.append(element.split("/")[-1])
@@ -45,7 +44,6 @@ class CheckCdrControl:
                         self.errInCDR=None
                         self.exc_type, self.exc_obj, self.exc_tb = sys.exc_info()
                         self.fileWithGenericError=element.split("/")[-1]
-                        print(element.split("/")[-1], self.fileWithGenericError)
                         break
                     if self.errInCDR==True:
                         self.siteWithError.append(element.split("/")[-1])
@@ -59,8 +57,7 @@ class CheckCdrControl:
                         self.errInCDR=None
                         self.exc_type, self.exc_obj, self.exc_tb = sys.exc_info()
                         self.fileWithGenericError=element.split("/")[-1]
-                        print(element.split("/")[-1], self.fileWithGenericError)
-                        break    
+                        break
                     if self.errInCDR==True:
                         self.siteWithError.append(element.split("/")[-1])
                         self.createLog(element)
