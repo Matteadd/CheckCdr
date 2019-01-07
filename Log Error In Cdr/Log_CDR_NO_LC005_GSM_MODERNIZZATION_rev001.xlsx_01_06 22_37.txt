@@ -1,4 +1,0 @@
-The value in "HSN (CHGR-1)"(AB5) in sheet "BTS" must not be empty
-
-The cell in tchFreq-0 (CHGR-1)(AF5) in sheet "BTS" can not be empty.
-

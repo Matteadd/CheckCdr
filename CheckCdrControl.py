@@ -1,4 +1,4 @@
-import openpyxl
+import openpyxl, sys
 import time
 import datetime
 import os
@@ -15,27 +15,52 @@ class CheckCdrControl:
         self.errInCDR=False
         self.listLineerrInCDR=[]
         self.siteWithError=[]
+        self.exc_type=""
+        self.exc_obj=""
+        self.exc_tb=""
+        self.fileWithGenericError=""
 
         localErr=False
         for element in self.paths:
             self.errInCDR=False
             if element!= None:
                 if "GSM" in element or"gsm"in element or "2g"in element or "2G"in element:
-                    self.gsm(element)
+                    try:
+                        self.gsm(element)
+                    except Exception as e:
+                        self.errInCDR=None
+                        self.exc_type, self.exc_obj, self.exc_tb = sys.exc_info()
+                        self.fileWithGenericError=element.split("/")[-1]
+                        print(element.split("/")[-1], self.fileWithGenericError)
+                        break
                     if self.errInCDR==True:
                         self.siteWithError.append(element.split("/")[-1])
                         self.createLog(element)
                         localErr=True
                         continue
                 elif "WCDMA"in element or "wcdma" in element or "3g" in element or "3G" in element or "umts" in element or "UMTS" in element:
-                    self.wcdma(element)
+                    try:
+                        self.wcdma(element)
+                    except Exception as e:
+                        self.errInCDR=None
+                        self.exc_type, self.exc_obj, self.exc_tb = sys.exc_info()
+                        self.fileWithGenericError=element.split("/")[-1]
+                        print(element.split("/")[-1], self.fileWithGenericError)
+                        break
                     if self.errInCDR==True:
                         self.siteWithError.append(element.split("/")[-1])
                         self.createLog(element)
                         localErr=True
                         continue
                 elif "LTE" in element or "lte" in element or "4g"in element or "4G"in element:
-                    self.lte(element)
+                    try:
+                        self.lte(element)
+                    except Exception as e:
+                        self.errInCDR=None
+                        self.exc_type, self.exc_obj, self.exc_tb = sys.exc_info()
+                        self.fileWithGenericError=element.split("/")[-1]
+                        print(element.split("/")[-1], self.fileWithGenericError)
+                        break    
                     if self.errInCDR==True:
                         self.siteWithError.append(element.split("/")[-1])
                         self.createLog(element)
@@ -53,6 +78,9 @@ class CheckCdrControl:
                 os.startfile(".\\Log Error In Cdr")
         elif  self.errInCDR==False:
             messagebox.showinfo(message="There aren't errors")
+        elif self.errInCDR==None:
+            messagebox.showerror(message=f"Generic error in Tool with {self.fileWithGenericError}.\nError type: {self.exc_type}\nError line: {self.exc_tb.tb_lineno}")
+
 
 
     def createLog(self, path):
@@ -316,27 +344,13 @@ class CheckCdrControl:
             self.errInCDR=True
             self.listLineerrInCDR.append("The cell in \"rbsId\"(E3) in sheet \"RNC Dataset-1\" can not be empty\n\n")
 
-        # sheet RN RNC neighbour U2U Dataset-1:
-        # colonna b e e uguali a rncDataset
-        # da finire
-        worksheet=doc["RN RNC neighbour U2U Dataset-1"]
-        nTotRow=countCol(doc,"RN RNC neighbour U2U Dataset-1", "C", 2 )
-        for row in range(2,nTotRow+2):
-            if worksheet[f"B{row}"].value!=rncDataset:
-                temp=doc["RBS Dataset-1"]["C1"].value
-                self.errInCDR=True
-                self.listLineerrInCDR.append(f"The \"Source RNC\"(B{row}) in sheet RN RNC neighbour U2U Dataset-1 is different from {temp}(C1) in sheet RNC Dataset-1\n\n")
-            if worksheet[f"E{row}"].value!=rncDataset:
-                temp=doc["RBS Dataset-1"]["C1"].value
-                self.errInCDR=True
-                self.listLineerrInCDR.append(f"The \"Target RNC\"(E{row}) in sheet RN RNC neighbour U2U Dataset-1 is different from {temp}(C1) in sheet RNC Dataset-1\n\n")
 
         # sheet RN RNC-RBS Dataset-1:
         # i valori in colonna r devono finire con una lettera tra U-V-Q-R-W-P e un numero che va da 1 a nSector
         # i valori della colonna q non devono ripetersi
         # i valori della colonna s non devono ripetersi
         # i valore nella colonna r non deve essere presente nella colonna an ma devono essere presenti tutte le altre celle dello stesso settore solo se sono state create ? da chiedere se solo per w va fatto il controllo
-        # da finire
+        # il valore nella colonna ag deve essere uguale alla cella dello stesso settore che è nello sheet external gsm. se lo sheet externale è vuoto anche lo sheet sarà vuoto
         worksheet=doc["RN RNC-RBS Dataset-1"]
         nTotRow=countCol(doc,"RN RNC-RBS Dataset-1", "R", 12 )
         elemInColR=elemInCol(doc, "RN RNC-RBS Dataset-1", "R", nTotRow, 12 )
@@ -421,7 +435,7 @@ class CheckCdrControl:
             valColAN=worksheet[f"AN{row}"].value
             splitValColAN=valColAN.split(",")
 
-            if valColR in valColAN:
+            if valColR in splitValColAN:
                 self.errInCDR=True
                 self.listLineerrInCDR.append(f"The cell \"{valColR}\"(R{row}), in sheet \"RN RNC-RBS Dataset-1\", is present in \"utranCellRef\"(AN{row}).\n\n")
 
@@ -429,11 +443,69 @@ class CheckCdrControl:
             for cell in splitValColAN:
                 if cell[-1]!=sectorNumber:
                     self.errInCDR=True
-                    self.listLineerrInCDR.append(f"There are cells of the different sector in \"utranCellRef\"(AN{row}).\n\n")
-
+                    self.listLineerrInCDR.append(f"There are cells of the different sectors in \"utranCellRef\"(AN{row}).\n\n")
                 if not(cell[-2] in lettercellCreated):
                     self.errInCDR=True
                     self.listLineerrInCDR.append(f"In the \"utranCellRef\"(AN{row}) the cell {cell} is not created in column \"CELL\"(R), in sheet \"RN RNC-RBS Dataset-1\".\n\n")
+
+        worksheetExtGsm=doc["External GSM Dataset-1"]
+        if worksheetExtGsm[f"C13"].value==None:
+            for row in range(12, nTotRow+12):
+                if worksheet[f"AG{row}"].value!="NULL":
+                    cell=worksheet[f"AG{row}"].value
+                    nameCol=worksheet[f"AG{11}"].value
+                    self.errInCDR=True
+                    self.listLineerrInCDR.append(f"The value {cell}, in {nameCol} in sheet \"RN RNC-RBS Dataset-1\", is wrong. Should be NULL.\n\n")
+        else:
+            nTotRowExtGsm=countCol(doc,"External GSM Dataset-1", "F", 13 )
+            elemInColFExtGsm=[None]*3
+            for row in range(13, nTotRowExtGsm + 13):
+                if not(worksheetExtGsm[f"F{row}"].value in elemInColFExtGsm):
+                    if int(worksheetExtGsm[f"F{row}"].value[-1])==1:
+                        if elemInColFExtGsm[0]==None:
+                            elemInColFExtGsm[0]=worksheetExtGsm[f"F{row}"].value
+                        else:
+                            if elemInColFExtGsm[0][-2]=="D"and worksheetExtGsm[f"F{row}"].value[-2]=="G":
+                                elemInColFExtGsm[0]=worksheetExtGsm[f"F{row}"].value
+                                pass
+                    elif int(worksheetExtGsm[f"F{row}"].value[-1])==2:
+                        if elemInColFExtGsm[1]==None:
+                            elemInColFExtGsm[1]=worksheetExtGsm[f"F{row}"].value
+                        else:
+                            if elemInColFExtGsm[1][-2]=="D"and worksheetExtGsm[f"F{row}"].value[-2]=="G":
+                                elemInColFExtGsm[1]=worksheetExtGsm[f"F{row}"].value
+                                pass
+                    elif int(worksheetExtGsm[f"F{row}"].value[-1])==3:
+                        if elemInColFExtGsm[2]==None:
+                            elemInColFExtGsm[2]=worksheetExtGsm[f"F{row}"].value
+                        else:
+                            if elemInColFExtGsm[2][-2]=="D"and worksheetExtGsm[f"F{row}"].value[-2]=="G":
+                                elemInColFExtGsm[2]=worksheetExtGsm[f"F{row}"].value
+                                pass
+                    # elemInColFExtGsm.append(worksheetExtGsm[f"F{row}"].value)
+
+            for row in range(12, nTotRow+12):
+                if int(worksheet[f"R{row}"].value[-1])==1:
+                    if worksheet[f"AG{row}"].value!=elemInColFExtGsm[0]:
+                        cell=worksheet[f"AG{row}"].value
+                        nameCol=worksheet[f"AG{11}"].value
+                        self.errInCDR=True
+                        self.listLineerrInCDR.append(f"The value {cell}, in {nameCol} in sheet \"RN RNC-RBS Dataset-1\", is wrong. Should be {elemInColFExtGsm[0]}\n\n")
+                        # print(f"The value {cell}, in {nameCol} in sheet \"RN RNC-RBS Dataset-1\", is wrong. Should be {elemInColFExtGsm[0]}")
+                if int(worksheet[f"R{row}"].value[-1])==2:
+                    if worksheet[f"AG{row}"].value!=elemInColFExtGsm[1]:
+                        cell=worksheet[f"AG{row}"].value
+                        nameCol=worksheet[f"AG{11}"].value
+                        self.errInCDR=True
+                        self.listLineerrInCDR.append(f"The value {cell}, in {nameCol} in sheet \"RN RNC-RBS Dataset-1\", is wrong. Should be {elemInColFExtGsm[1]}\n\n")
+                        # print(f"The value {cell}, in {nameCol} in sheet \"RN RNC-RBS Dataset-1\", is wrong. Should be {elemInColFExtGsm[1]}")
+                if int(worksheet[f"R{row}"].value[-1])==3:
+                    if worksheet[f"AG{row}"].value!=elemInColFExtGsm[2]:
+                        cell=worksheet[f"AG{row}"].value
+                        nameCol=worksheet[f"AG{11}"].value
+                        self.errInCDR=True
+                        self.listLineerrInCDR.append(f"The value {cell}, in {nameCol} in sheet \"RN RNC-RBS Dataset-1\", is wrong. Should be {elemInColFExtGsm[2]}\n\n")
+                        # print(f"The value {cell}, in {nameCol} in sheet \"RN RNC-RBS Dataset-1\", is wrong. Should be {elemInColFExtGsm[2]}")
 
         #sheet EutranFreqRelation-1
         # nella colonna b devono essere presenti solo le celle create in Cell(R) in rn rnc dataset-1
@@ -446,10 +518,95 @@ class CheckCdrControl:
                 self.listLineerrInCDR.append(f"The cell {cell}, in \"UTRANCELL\"(B{row}) in sheet \"EutranFreqRelation-1\", is not created in column \"CELL\"(R), in sheet \"RN RNC-RBS Dataset-1\".\n\n")
 
         # sheet RN RNC neighbour U2U Dataset-1:
-        # le colonne b ed e hanno lo stesso valore della colonna c in RNc dataset-1
+        # le colonne B e E devono avere la stessa stringa che deve essere uguale a alla colonna C del RNC Dataset-1 ;
+        # nelle colonne C e D devono comparire SOLO le celle dichiarate in RN RNC-RBS Dataset-1 colonna R.
+        worksheet=doc["RN RNC neighbour U2U Dataset-1"]
+        nTotRow=countCol(doc,"RN RNC neighbour U2U Dataset-1", "B", 2 )
+
+        cellCreatedInRNcRBS=[]
+        nTotRowInRNcRBS=countCol(doc,"RN RNC-RBS Dataset-1", "R", 12 )
+        cellCreatedInRNcRBS=elemInCol(doc, "RN RNC-RBS Dataset-1", "R", nTotRowInRNcRBS, 12)
+
+        for row in range(2, nTotRow+2):
+            if worksheet[f"B{row}"].value!=rncDataset:
+                cell=worksheet[f"B{row}"].value
+                nameCol=worksheet[f"B{1}"].value
+                self.errInCDR=True
+                self.listLineerrInCDR.append(f"The value {cell}, in {nameCol} in sheet \"RN RNC neighbour U2U Dataset-1\", can not be different from the value in \"NODE NAME\" in \"RNC Dataset-1\".\n\n")
+            if worksheet[f"E{row}"].value!=rncDataset:
+                cell=worksheet[f"E{row}"].value
+                nameCol=worksheet[f"E{1}"].value
+                self.errInCDR=True
+                self.listLineerrInCDR.append(f"The value {cell}, in {nameCol} in sheet \"RN RNC neighbour U2U Dataset-1\", can not be different from the value in \"NODE NAME\" in \"RNC Dataset-1\".\n\n")
+            if not(worksheet[f"C{row}"].value in cellCreatedInRNcRBS):
+                cell=worksheet[f"C{row}"].value
+                nameCol=worksheet[f"C{1}"].value
+                self.errInCDR=True
+                self.listLineerrInCDR.append(f"The cell {cell}, in {nameCol} in sheet \"RN RNC neighbour U2U Dataset-1\", can not exists in \"CELL\" in \"RN RNC-RBS Dataset-1\".\n\n")
+            if not(worksheet[f"D{row}"].value in cellCreatedInRNcRBS):
+                cell=worksheet[f"D{row}"].value
+                nameCol=worksheet[f"D{1}"].value
+                self.errInCDR=True
+                self.listLineerrInCDR.append(f"The cell {cell}, in {nameCol} in sheet \"RN RNC neighbour U2U Dataset-1\", can not exists in \"CELL\" in \"RN RNC-RBS Dataset-1\".\n\n")
+
+        # sheet RN RNC neighbour U2G Dataset-1:
+        # la colonna B deve essere uguale alla colonna C del RNC Dataset-1:
+        # nella colonna C ci devono essere SOLO (anche ripetute) le celle definite in colonna R RN RNC-RBS Dataset-1;
+        # nella colonna D ci devono essere SOLO (anche ripetute) le celle definite in colonna F dello sheet External GSM Dataset-1. da finire
+        worksheet=doc["RN RNC neighbour U2G Dataset-1"]
+        nTotRow=countCol(doc,"RN RNC neighbour U2G Dataset-1", "C", 2 )
+
+        cellCreatedInExtGsm=[]
+        nTotRowInExtGsm=countCol(doc,"External GSM Dataset-1", "F", 12 )
+        cellCreatedInExtGsm=elemInCol(doc, "RN RNC-RBS Dataset-1", "F", nTotRowInRNcRBS, 12)
+
+        for row in range(2, nTotRow+2):
+            if worksheet[f"B{row}"].value!=rncDataset:
+                cell=worksheet[f"B{row}"].value
+                nameCol=worksheet[f"B{11}"].value
+                self.errInCDR=True
+                self.listLineerrInCDR.append(f"The value {cell}, in {nameCol} in sheet \"RN RNC neighbour U2G Dataset-1\", can not be different from the value in \"NODE NAME\" in \"RNC Dataset-1\".\n\n")
+            if not(worksheet[f"C{row}"].value in cellCreatedInRNcRBS):
+                cell=worksheet[f"C{row}"].value
+                nameCol=worksheet[f"C{1}"].value
+                self.errInCDR=True
+                self.listLineerrInCDR.append(f"The cell {cell}, in {nameCol} in sheet \"RN RNC neighbour U2G Dataset-1\", can not exists in \"CELL\" in \"RN RNC-RBS Dataset-1\".\n\n")
 
 
+        # sheet External GSM Dataset-1:
+        # se la colonna F è non-vuota, allora la colonna C deve essere uguale alla colonna C del RNC Dataset-1;
+        # se la colonna F è non-vuota, allora nella colonna G i valori NON si devono ripetere;
+        # se la colonna F è non-vuota, allora la colonna H deve essere sempre 7
+        # se la colonna F è non-vuota, allora I può assumere valori da 0 a 7
 
+        worksheet=doc["External GSM Dataset-1"]
+        nTotRow=countCol(doc,"External GSM Dataset-1", "C", 13 )
+
+        if nTotRow != 0:
+            for row in range(13, nTotRow+13):
+                if worksheet[f"F{row}"].value != None:
+                    if worksheet[f"C{row}"].value!=rncDataset:
+                        cell=worksheet[f"C{row}"].value
+                        nameCol=worksheet[f"C{11}"].value
+                        self.errInCDR=True
+                        self.listLineerrInCDR.append(f"The value {cell}, in {nameCol} in sheet \"External GSM Dataset-1\", can not be different from the value in \"NODE NAME\" in \"RNC Dataset-1\".\n\n")
+                        if int(worksheet[f"H{row}"].value)!=7:
+                            cell=worksheet[f"H{row}"].value
+                            nameCol=worksheet[f"H{11}"].value
+                            self.errInCDR=True
+                            self.listLineerrInCDR.append(f"The value {cell}, in {nameCol} in sheet \"External GSM Dataset-1\", must be 7.\n\n")
+                            if int(worksheet[f"I{row}"].value)<0 or int(worksheet[f"I{row}"].value)>7:
+                                cell=worksheet[f"I{row}"].value
+                                nameCol=worksheet[f"I{11}"].value
+                                self.errInCDR=True
+                                self.listLineerrInCDR.append(f"The value {cell}, in {nameCol} in sheet \"External GSM Dataset-1\", must be between 0 and 7.\n\n")
+
+            occurenceInG=occurenceInCol(doc, "External GSM Dataset-1", "G", 13)
+            if len(occurenceInG)>0:
+                for element in occurenceInG:
+                    nameCol=worksheet[f"G{11}"].value
+                    self.errInCDR=True
+                    self.listLineerrInCDR.append(f"In the column {nameCol} in sheet \"External GSM Dataset-1\", the value {element[0]} is present more than once.\n\n")
 
     def lte(self, path):
         doc= openpyxl.load_workbook(path, data_only=True)
@@ -597,7 +754,7 @@ def elemInCol(excel,sheet, col, nTotCol, rowStart):
         pass
     return elementCol
     pass
-# cerca nella colonna se i valori sono diversi. Se sonon diversi torna errore
+# cerca nella colonna se i valori sono diversi. Se non sono diversi torna errore
 def equalValuesInSameCol(doc, sheet, col, rowStart):
     err=[]
 
@@ -614,6 +771,27 @@ def equalValuesInSameCol(doc, sheet, col, rowStart):
     return err
 
     pass
+
+def occurenceInCol(doc, sheet, col, rowStart):
+    nTotRow=countCol(doc, sheet, col, rowStart)
+    elemInColX=elemInCol(doc, sheet, col, nTotRow, rowStart)
+    occurence=[]
+    for e in elemInColX:
+        occE=elemInColX.count(e)
+        if occE>1:
+            # occurence.append([e,occE])
+            if len(occurence)>0:
+                exist=False
+                for ele in occurence:
+                    if e==ele[0]:
+                        exist=True
+                        break
+                if not(exist):
+                    occurence.append([e,occE])
+
+            else:
+                occurence.append([e,occE])
+    return occurence
 
 def equalValuesInOtherCol(doc, sheet, col, rowStart, sheetToCheck, colToCheck, rowToCheck):
     err=[]
