@@ -144,7 +144,7 @@ class CheckCdrControl:
                                            "It must have inside \""+ str(doc["BTS"]["F"+str(element)].value)+ "\""+"(F"+str(element)+") and \""+str(doc["BTS"]["G"+str(element)].value)+"\"(G"+str(element)+")\n\n")
 
             # Diversi controlli sul TRX in caso non fosse vuoto o diverso da 0
-            if (doc["BTS"]["X"+str(element)].value!=None) and (doc["BTS"]["X"+str(element)].value!="0"):
+            if (doc["BTS"]["X"+str(element)].value!=None) and (doc["BTS"]["X"+str(element)].value!=0):
 
                 nTrx=doc["BTS"]["X"+str(element)].value
                 startLett="F"
@@ -208,7 +208,7 @@ class CheckCdrControl:
 
                     startLett=chr(ord(startLett)+1)
             # se TRX è vuota controllo che da af a ak della stessa colonna siano vuote
-            elif (doc["BTS"]["X"+str(element)].value==None) or (doc["BTS"]["X"+str(element)].value=="0"):
+            elif (doc["BTS"]["X"+str(element)].value==None) or (doc["BTS"]["X"+str(element)].value==0):
 
                 errTrxEmpty=False
 
@@ -230,7 +230,7 @@ class CheckCdrControl:
                     self.listLineerrInCDR.append("The \"Number of TRX of TCH\"(X"+str(element)+")is empty and some field from coloumn \"tchFreq-0 (CHGR-1)\"(AF) to \"tchFreq-5 (CHGR-1)\"(AK) are filled\n\n")
 
             #controllo che la frequenza k non sia in nessuna frequenza da af a ak
-            if (doc["BTS"]["K"+str(element)].value!=None) and (doc["BTS"]["K"+str(element)].value!="0"):
+            if (doc["BTS"]["K"+str(element)].value!=None) and (doc["BTS"]["K"+str(element)].value!=0):
                 valInK=doc["BTS"]["K"+str(element)].value
                 startLett="F"
                 while startLett!="L":
