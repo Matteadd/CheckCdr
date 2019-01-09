@@ -304,6 +304,21 @@ class CheckCdrControl:
                 self.errInCDR=True
                 self.listLineerrInCDR.append(f"The  cell {cell}, in {nameCol}(E{row}) in \"ADJ G2G\", is not created in column \"cell-name\"(C), in sheet \"BTS\".\n\n")
 
+        worksheet=doc["External 3G cells"]
+        nTotRow=countCol(doc,"External 3G cells", "B", 2 )
+        cell3G=[]
+        for row in range(2, nTotRow+2):
+            cell3G.append(worksheet[f"B{row}"].value)
+
+        worksheet=doc["ADJ G2U"]
+        nTotRow=countCol(doc,"ADJ G2U", "D", 2 )
+        for row in range(2, nTotRow+2):
+            if not(worksheet[f"D{row}"].value in cell3G):
+                cell=worksheet[f"D{row}"].value
+                nameCol=worksheet[f"D{1}"].value
+                self.errInCDR=True
+                self.listLineerrInCDR.append(f"The cell {cell}(D{row}) in {nameCol} in sheet \"ADJ G2U\", not exists in column \"TARGET_3G_CELL_NAME\" in sheet \"External 3G cells\".\n\n")
+                # print(f"The cell {cell}(D{row}) in {nameCol} in sheet \"ADJ G2U\", not exists in column \"TARGET_3G_CELL_NAME\" in sheet \"External 3G cells\".\n\n")
 
 
         doc.close()
