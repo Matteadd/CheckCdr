@@ -25,13 +25,7 @@ class CheckCdrControl:
             self.errInCDR=False
             if element!= None:
                 if "GSM" in element or"gsm"in element or "2g"in element or "2G"in element:
-                    # try:
                     self.gsm(element)
-                    # except Exception as e:
-                    #     self.errInCDR=None
-                    #     self.exc_type, self.exc_obj, self.exc_tb = sys.exc_info()
-                    #     self.fileWithGenericError=element.split("/")[-1]
-                    #     break
                     if self.errInCDR==True:
                         self.siteWithError.append(element.split("/")[-1])
                         self.createLog(element)
@@ -40,13 +34,7 @@ class CheckCdrControl:
                     if self.errInCDR==None:
                         break
                 elif "WCDMA"in element or "wcdma" in element or "3g" in element or "3G" in element or "umts" in element or "UMTS" in element:
-                    # try:
                     self.wcdma(element)
-                    # except Exception as e:
-                    #     self.errInCDR=None
-                    #     self.exc_type, self.exc_obj, self.exc_tb = sys.exc_info()
-                    #     self.fileWithGenericError=element.split("/")[-1]
-                    #     break
                     if self.errInCDR==True:
                         self.siteWithError.append(element.split("/")[-1])
                         self.createLog(element)
@@ -55,13 +43,7 @@ class CheckCdrControl:
                     elif self.errInCDR==None:
                         break
                 elif "LTE" in element or "lte" in element or "4g"in element or "4G"in element:
-                    # try:
                     self.lte(element)
-                    # except Exception as e:
-                    #     self.errInCDR=None
-                    #     self.exc_type, self.exc_obj, self.exc_tb = sys.exc_info()
-                    #     self.fileWithGenericError=element.split("/")[-1]
-                    #     break
                     if self.errInCDR==True:
                         self.siteWithError.append(element.split("/")[-1])
                         self.createLog(element)
@@ -491,12 +473,13 @@ class CheckCdrControl:
 
             worksheetExtGsm=doc["External GSM Dataset-1"]
             if worksheetExtGsm[f"C13"].value==None:
-                for row in range(12, nTotRow+12):
-                    if worksheet[f"AG{row}"].value!="NULL":
-                        cell=worksheet[f"AG{row}"].value
-                        nameCol=worksheet[f"AG{11}"].value
-                        self.errInCDR=True
-                        self.listLineerrInCDR.append(f"The value {cell}, in {nameCol} in sheet \"RN RNC-RBS Dataset-1\", is wrong. Should be NULL.\n\n")
+                a=1
+                # for row in range(12, nTotRow+12):
+                #     if worksheet[f"AG{row}"].value!="NULL":
+                #         cell=worksheet[f"AG{row}"].value
+                #         nameCol=worksheet[f"AG{11}"].value
+                #         self.errInCDR=True
+                #         self.listLineerrInCDR.append(f"The value {cell}, in {nameCol} in sheet \"RN RNC-RBS Dataset-1\", is wrong. Should be NULL.\n\n")
             else:
                 nTotRowExtGsm=countCol(doc,"External GSM Dataset-1", "F", 13 )
                 elemInColFExtGsm=[None]*3
@@ -523,7 +506,7 @@ class CheckCdrControl:
                                 if elemInColFExtGsm[2][-2]=="D"and worksheetExtGsm[f"F{row}"].value[-2]=="G":
                                     elemInColFExtGsm[2]=worksheetExtGsm[f"F{row}"].value
                                     pass
-                        # elemInColFExtGsm.append(worksheetExtGsm[f"F{row}"].value)
+
 
                 for row in range(12, nTotRow+12):
                     if int(worksheet[f"R{row}"].value[-1])==1:
