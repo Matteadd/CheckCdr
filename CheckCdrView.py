@@ -55,9 +55,6 @@ class Toplevel1:
                                       command=lambda: checkCdrControl(self.path), )
         self.checkButton.grid(row=6, column=0, ipady=5, sticky="w,e", columnspan=3)
 
-        # self.lblSelSite = ttk.Label(top, relief="groove", text="SELECT THE NUMBER\n OF FILE")
-        # self.lblSelSite.grid(row=0, column=0, ipadx=10, )
-
         for n in range(self.nSite):
             self.lblCdr.append(ttk.Label(top, relief="groove", width=40, style="lblCdr.TLabel", ))
 
