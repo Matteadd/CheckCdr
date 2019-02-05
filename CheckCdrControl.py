@@ -471,7 +471,7 @@ class CheckCdrControl:
                             self.errInCDR=True
                             self.listLineerrInCDR.append(f"In the \"utranCellRef\"(AN{row}) the cell {cell} is not created in column \"CELL\"(R), in sheet \"RN RNC-RBS Dataset-1\".\n\n")
 
-            worksheetExtGsm=doc["External GSM Dataset-1"]
+            worksheetExtGsm = doc["External GSM Dataset-1"]
             if worksheetExtGsm[f"C13"].value==None:
                 a=1
                 # for row in range(12, nTotRow+12):
