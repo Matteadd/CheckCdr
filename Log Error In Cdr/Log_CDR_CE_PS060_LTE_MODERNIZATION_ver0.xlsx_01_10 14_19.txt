@@ -1,4 +1,0 @@
-The value "1"(K12) and "1"(K13), in "physicalLayerSubCellId" in sheet "EutranCell, can not be the same."
-
-The value "1"(K13) and "1"(K12), in "physicalLayerSubCellId" in sheet "EutranCell, can not be the same."
-
